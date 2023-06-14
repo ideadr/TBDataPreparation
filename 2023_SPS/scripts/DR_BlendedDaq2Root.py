@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import ROOT
 import os
@@ -24,9 +24,9 @@ doNotMerge = False
 def CreateBlendedFile(SiPMFileName,DaqFileName,outputfilename):
     SiPMinfile = None
     Daqinfile = None
-
+    
     if not CheckFileNames(SiPMFileName,DaqFileName):
-        print 'Problems, exiting......'
+        print( 'Problems, exiting......')
         return -1
 
     #open input.......
@@ -39,10 +39,10 @@ def CreateBlendedFile(SiPMFileName,DaqFileName,outputfilename):
     OutputFile = ROOT.TFile.Open(outputfilename,"recreate")
 
     if not (SiPMMetaDataTreeName in SiPMinfile.GetListOfKeys()):
-        print "Cannot find tree with name " + SiPMMetaDataTreeName + " in file " + SiPMinfile.GetName()
+        print( "Cannot find tree with name " + SiPMMetaDataTreeName + " in file " + SiPMinfile.GetName())
         return -1
     if not (DaqTreeName in Daqinfile.GetListOfKeys()):
-        print "Cannot find tree with name " + DaqTreeName + " in file " + DaqInfile.GetName()
+        print( "Cannot find tree with name " + DaqTreeName + " in file " + DaqInfile.GetName())
         return -1
     
     DaqInputTree = Daqinfile.Get(DaqTreeName)
@@ -117,14 +117,14 @@ def CloneSiPMTree(DaqInputTree,SiPMInput,OutputFile):
             
     totalNumberOfEvents = DaqInputTree.GetEntries()
 
-    print "Total Number of Events from DAQ " + str(totalNumberOfEvents)
-    print "Merging with an offset of " + str(EvtOffset)
+    print( "Total Number of Events from DAQ " + str(totalNumberOfEvents))
+    print( "Merging with an offset of " + str(EvtOffset))
 
 
     
     for daq_ev in range(0,totalNumberOfEvents):
         if (daq_ev%10000 == 0):
-            print str(daq_ev) + " events processed"
+            print( str(daq_ev) + " events processed")
 
         for iboard in range(0,5):
             HG_Board[iboard].fill(0)
@@ -139,7 +139,8 @@ def CloneSiPMTree(DaqInputTree,SiPMInput,OutputFile):
         for entryToBeStored in evtToBeStored:
             SiPMInput.GetEntry(entryToBeStored)
             #### Dirty trick to read an unsigned char from the ntuple
-            myboard = map(ord,SiPMInput.BoardId)[0]
+            #myboard = map(ord,SiPMInput.BoardId)[0]
+            myboard = [ ord(boardID) for boardID in SiPMInput.BoardId ][0]
             np.copyto(HG_Board[myboard],HGinput)
             np.copyto(LG_Board[myboard],LGinput)
             TriggerTimeStampUs[0] = SiPMInput.TriggerTimeStampUs
@@ -172,22 +173,22 @@ def DetermineOffset(SiPMTree,DAQTree):
     SiPMTree.SetBranchStatus("*",1)
     ### Find the missing TriggerId
     TrigIdComplement = evList - TriggerIdList
-    print "from PMT file: events "+str(len(evList))+" pedestals: "+str(len(pedList))
-    print "from SiPM file: events with no trigger "+str(len(TrigIdComplement))
+    print( "from PMT file: events "+str(len(evList))+" pedestals: "+str(len(pedList)))
+    print( "from SiPM file: events with no trigger "+str(len(TrigIdComplement)))
     #### do some diagnostic plot
     for p in pedList:
-	    x.append(p)
-	    y.append(2)
+        x.append(p)
+        y.append(2)
     for p2 in TrigIdComplement:
-	    xsipm.append(p2)
-	    ysipm.append(1)
+        xsipm.append(p2)
+        ysipm.append(1)
     hist = ROOT.TH1I("histo","histo",100, 0, 100)
     for i in np.diff(sorted(list(pedList))):
-	    hist.Fill(i)
+        hist.Fill(i)
     hist.Write()
     hist2 = ROOT.TH1I("histo2","histo2",100,0,100)
     for i in np.diff(sorted(list(TrigIdComplement))):
-	    hist2.Fill(i)
+        hist2.Fill(i)
     hist2.Write()
     graph = ROOT.TGraph(len(x),x,y)
     graph2 = ROOT.TGraph(len(xsipm),xsipm,ysipm)
@@ -211,18 +212,18 @@ def DetermineOffset(SiPMTree,DAQTree):
         if len(diffSet) < minLen:
             minLen = len(diffSet)
             minOffset = offset
-        print "Offset " + str(offset) + ": " + str(diffLen[offset]) + " ped triggers where SiPM fired"
-    print "Minimum value " + str(minLen) + " occurring for " + str(minOffset) + " offset"
+        print( "Offset " + str(offset) + ": " + str(diffLen[offset]) + " ped triggers where SiPM fired")
+    print( "Minimum value " + str(minLen) + " occurring for " + str(minOffset) + " offset")
 
     return minOffset
 
 def CheckFileNames(SiPMFileName,DaqFileName):
     retval = True
     if not os.path.isfile(SiPMFileName):
-        print 'Error! File ' + SiPMFileName + ' is not there'  
+        print( 'Error! File ' + SiPMFileName + ' is not there')  
         retval = False
     if not os.path.isfile(DaqFileName):
-        print 'Error! File ' + DaqFileName + ' is not there'  
+        print( 'Error! File ' + DaqFileName + ' is not there'  )
         retval = False
     return retval 
 
@@ -287,30 +288,30 @@ def main():
         rn_list = GetNewRuns()
         for runNumber in rn_list:
             outfilename = MergedFileDir + '/merged_sps2021_run' + str(runNumber) + '.root'
-            print '\n\nGoing to merge run ' + runNumber + ' and the output file will be ' + outfilename + '\n\n'  
+            print( '\n\nGoing to merge run ' + runNumber + ' and the output file will be ' + outfilename + '\n\n'  )
             allgood = doRun(runNumber, outfilename)
         return 
 
     allGood = 0
 
     if par.runNumber != '0':
-        print 'Looking for run number ' + par.runNumber
+        print( 'Looking for run number ' + par.runNumber)
         outfilename = 'merged_sps2021_run' + str(par.runNumber) + '.root'
         allGood = doRun(par.runNumber,outfilename)
     else: 
         if par.inputSiPM != '0' and par.inputDaq != '0':
-            print 'Running on files ' + par.inputSiPM + ' and ' +  par.inputDaq
+            print( 'Running on files ' + par.inputSiPM + ' and ' +  par.inputDaq)
             start = time.time()
             allGood = CreateBlendedFile(par.inputSiPM,par.inputDaq,par.outputFileName)
             end = time.time()
-            print 'Execution time ' + str(end-start)
+            print( 'Execution time ' + str(end-start))
         else:
-            print 'You need to provide either --inputSiPM and --inputDaq, or --runNumber. Exiting graciously.....'
+            print( 'You need to provide either --inputSiPM and --inputDaq, or --runNumber. Exiting graciously.....')
             parser.print_help()
             return 
 
     if allGood != 0:
-        print 'Something went wrong. Please double check your options. If you are absolutely sure that the script should have worked, contact iacopo.vivarelli AT cern.ch'
+        print( 'Something went wrong. Please double check your options. If you are absolutely sure that the script should have worked, contact iacopo.vivarelli AT cern.ch')
 
 ############################################################################################# 
 

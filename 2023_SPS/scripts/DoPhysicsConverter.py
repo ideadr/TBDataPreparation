@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import glob
 import os
@@ -11,7 +11,7 @@ mrgfls = list(set(mrgfls) - set(recfls))
 phspath = "/eos/user/i/ideadr/TB2021_H8/recoNtuple/"
 
 if mrgfls:
-	print str(len(mrgfls))+" new files found"
+	print( str(len(mrgfls))+" new files found")
 
 
 for fl in mrgfls:
@@ -21,4 +21,4 @@ for fl in mrgfls:
 	os.system(cmnd2)
 
 if not mrgfls:
-	print "No new files found."
+	print( "No new files found.")

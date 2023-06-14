@@ -15,7 +15,6 @@
 #include <array>
 #include <stdint.h>
 #include <string>
-#include "json.hpp"
 #include <fstream>
 #include "PhysicsEvent.h"
 #include <string>

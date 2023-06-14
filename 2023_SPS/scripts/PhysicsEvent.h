@@ -12,7 +12,7 @@
 #include <array>
 #include <stdint.h>
 #include <string>
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 #include <fstream>
 
 #ifndef Event_H

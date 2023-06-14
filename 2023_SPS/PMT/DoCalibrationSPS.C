@@ -11,7 +11,6 @@
 #include <TFile.h>
 #include <TH1.h>
 #include <TMath.h>
-#include "../scripts/json.hpp"
 #include "../scripts/PhysicsEvent.h"
 
 using json = nlohmann::json;
