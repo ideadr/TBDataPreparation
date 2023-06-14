@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 ##**************************************************
 ## \file DRrootify.py
 ## \brief: converter from ASCII files to EventDR objects 
@@ -6,6 +8,7 @@
 ##          Andrea Negri (UniPV & INFN)
 ## \start date: 16 August 2021
 ##**************************************************
+
 
 import DREvent
 from ROOT import *
@@ -42,9 +45,9 @@ class DRrootify:
 
     def ReadandRoot(self):
         '''Read ASCII files line by line and rootify'''
-        print "--->Start rootification of "+self.drfname
+        print( "--->Start rootification of " + self.drfname )
         for i, line in enumerate(open(self.drfname)):
-            if i%5000 == 0 : print "------>At line "+str(i)+" of "+str(self.drfname)
+            if i%5000 == 0 : print( "------>At line "+str(i)+" of "+str(self.drfname) )
             evt = DREvent.DRdecode(line) 
             self.EventNumber[0] = evt.EventNumber
             self.NumOfPhysEv[0] = evt.NumOfPhysEv
@@ -59,7 +62,7 @@ class DRrootify:
                 self.TDCsval[counter] = l[1][0]
                 self.TDCscheck[counter] = l[1][1]
             self.tbtree.Fill()
-        print "--->End rootification of "+self.drfname
+        print( "--->End rootification of " + self.drfname )
     
     def Write(self):
         self.tbtree.Write()
@@ -89,15 +92,15 @@ def main():
     datapath = par.datapath
     ntuplepath = par.ntuplepath
 
-    print 'Input directory ' + datapath
-    print 'Output directory ' + ntuplepath
+    print( 'Input directory ' + datapath )
+    print( 'Output directory ' + ntuplepath )
 
     if not os.path.isdir(datapath):
-        print 'ERROR! Input directory ' + datapath + ' does not exist.'
+        print( 'ERROR! Input directory ' + datapath + ' does not exist.' )
         return -1
 
     if not os.path.isdir(ntuplepath):
-        print 'ERROR! Output directory ' + ntuplepath + ' does not exist.'
+        print( 'ERROR! Output directory ' + ntuplepath + ' does not exist.' )
         return -1
 
     datafls = [x.split(".bz2")[0] for x in glob.glob(datapath+"/sps*.bz2")]
@@ -110,29 +113,29 @@ def main():
 
 
     if par.debug: 
-        print '\n This is the list of potential raw data files to be converted \n'
+        print ('\n This is the list of potential raw data files to be converted \n')
         for x in datafls:
-            print x
+            print( x)
 
-        print '\n This is the list of data files already converted \n'
+        print ('\n This is the list of data files already converted \n')
         for x in ntuplfls:
-            print x
+            print( x)
                 
-        print '\n This is the list of data files that will be converted \n'
+        print ('\n This is the list of data files that will be converted \n')
         for x in newfls:
-            print x
+            print( x)
 
 
     #Rootify those data
     
-    print "Hi!"
+    print ("Hi!")
     if newfls:
-        print str(len(newfls))+" new files found"
+        print( str(len(newfls))+" new files found")
 
     for fl in newfls:
-        print "->Found new file to be rootified: "+str(fl)
+        print( "->Found new file to be rootified: " + str(fl) )
         os.system("bzip2 -d -k "+datapath+ '/' + str(fl)+".bz2")
-        print "--->"+str(fl)+".bz2 decompressed"
+        print( "--->"+str(fl)+".bz2 decompressed")
         fname = fl[0:-4]
         dr = DRrootify(datapath+'/' +fname)
         dr.ReadandRoot()
@@ -140,9 +143,9 @@ def main():
         os.system("rm "+datapath+'/' + fl)
         os.system("mv "+datapath+ '/' + str(fl[0:-4])+".root "+ntuplepath + '/') 
     else:
-        print "->No new files found"            
+        print( "->No new files found"            )
 
-    print "Bye!"
+    print( "Bye!")
 
 ##**************************************************
 

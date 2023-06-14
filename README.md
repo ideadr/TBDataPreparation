@@ -1,6 +1,15 @@
 # TBDataPreparation
 **Repository for the code to convert raw test-beam data to ROOT ntuples.**
 
+## Setup
+```
+mkdir My_Workspace
+cd My_Workspace
+git clone https://github.com/DRCalo/TBDataPreparation.git
+TBDataPreparation/init.sh
+source setup.sh  # this needs to be called each time one starts with new shell
+```
+
 ## Availale test beam data sets
 For every relevant software version we release the corresponding test beam data set. The following is the list of available data sets so far.
 
