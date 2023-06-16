@@ -61,11 +61,10 @@ def DRdecode(evLine):
    
   # Parse ADC 
   listADCs = strADCs.split()
-  for i in range(len(listADCs)):
-    if i%2 ==0:
-      ch = int(listADCs[i]  , 10)
-      val= int(listADCs[i+1], 16)
-      e.ADCs[ch]=val 
+  for i in range(0, len(listADCs), 2):
+    ch = int(listADCs[i]  , 10)
+    val= int(listADCs[i+1], 16)
+    e.ADCs[ch]=val 
 
   # Parse TDC  
   entries  = -1
@@ -82,12 +81,11 @@ def DRdecode(evLine):
   strTDCs  = strTDCs[ strTDCs.find("val.s") + 6 : ]
   listTDCs = strTDCs.split()
   if entries > 0:
-    for i in range(len(listTDCs)):
-      if i%3 ==0:
-        ch  = int( listTDCs[i+0], 10 )  # Channel
-        ver = int( listTDCs[i+1], 10 )  # Varification number
-        val = int( listTDCs[i+2], 10 )  # Value
-        e.TDCs[ch] = ( val, ver) 
+    for i in range(0, len(listTDCs), 3):
+      ch  = int( listTDCs[i+0], 10 )  # Channel
+      ver = int( listTDCs[i+1], 10 )  # Varification number
+      val = int( listTDCs[i+2], 10 )  # Value
+      e.TDCs[ch] = ( val, ver) 
  
   return e
 

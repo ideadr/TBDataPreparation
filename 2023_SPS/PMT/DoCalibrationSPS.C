@@ -16,8 +16,10 @@
 using json = nlohmann::json;
 ClassImp(EventOut)
 
-#define DATADIR  "/eos/user/i/ideadr/TB2021_H8/CERNDATA/v1.3/mergedNtuple/"
+//#define DATADIR  "/eos/user/i/ideadr/TB2021_H8/CERNDATA/v1.3/mergedNtuple/"
+#define DATADIR  "/its/home/yc560/public/FCC/TBData/exampleSamples/mergedNtuple/"
 //#define OUTDIR "/afs/cern.ch/user/j/jagarwal/workspace/public/emsizedPT/DREMTubes/TBDataPreparation/202108_SPS/PMT/textfiles/calibV1.3.5/"
+#define OUTDIR "/its/home/yc560/public/FCC/TBData/exampleSamples/mergedNtuple/"
 
 void DoCalibrationSPS(){
 
@@ -32,14 +34,14 @@ void DoCalibrationSPS(){
 	cout<<"run series starting with " <<runs[0] << endl; 
 
 	// write pedestal
-        ostringstream ped;
-        ped << OUTDIR << "pedestal.txt";
-        cout<<"pedestal output file: "<< ped.str() << endl;
+	ostringstream ped;
+	ped << OUTDIR << "pedestal.txt";
+	cout<<"pedestal output file: "<< ped.str() << endl;
 	
 	// write equalisation
-        ostringstream equal;
-        equal << OUTDIR << "equalisation.txt";
-        cout<<"equalisation output file: "<< equal.str() << endl;
+	ostringstream equal;
+	equal << OUTDIR << "equalisation.txt";
+	cout<<"equalisation output file: "<< equal.str() << endl;
 
 	// vectors for storing peaks and pedestals for S and C  for eight the PMT towers
 	std::vector<float> myAdc; 
@@ -58,31 +60,31 @@ void DoCalibrationSPS(){
 	// loop on towers to get all ped and S and C peaks
 	for(int tow=1; tow<9; tow++){ 
 
- 	   // index for ADC channels	
-           c_idx= mych[tow-1]; 
-	   s_idx= mych[tow+7];
+		// index for ADC channels	
+		c_idx= mych[tow-1]; 
+		s_idx= mych[tow+7];
 
-	   myAdc = peakFinder (tow, runs[tow], s_idx, c_idx,  ped.str());	
-	   ped_s.push_back(myAdc.at(0));
-           ped_c.push_back(myAdc.at(1));
-	   myAdc_s.push_back(myAdc.at(2));
-           myAdc_c.push_back(myAdc.at(3));
+		myAdc = peakFinder (tow, runs[tow], s_idx, c_idx,  ped.str());	
+		ped_s.push_back(myAdc.at(0));
+		ped_c.push_back(myAdc.at(1));
+		myAdc_s.push_back(myAdc.at(2));
+		myAdc_c.push_back(myAdc.at(3));
 	}// end loop on towers
 
 
 	// using data file for T0
 	TFile *f;
 	ostringstream infile;
-        infile <<  DATADIR <<  "merged_sps2021_run" << std::to_string(runs[0]) << ".root";
-        std::cout<<"Using file: "<<infile.str()<<std::endl;
-        f=new TFile(infile.str().c_str());
-        TTree *t = (TTree*) f->Get("CERNSPS2021");
-        TTree *tSIPM = (TTree*) f->Get("SiPMSPS2021");
-        cout <<"T0: tPMT entries  "<< t->GetEntries()<< "  T0: tSIPM entries " << tSIPM->GetEntries() << endl;
+	infile <<  DATADIR <<  "merged_sps2021_run" << std::to_string(runs[0]) << ".root";
+	std::cout<<"Using file: "<<infile.str()<<std::endl;
+	f=new TFile(infile.str().c_str());
+	TTree *t = (TTree*) f->Get("CERNSPS2021");
+	TTree *tSIPM = (TTree*) f->Get("SiPMSPS2021");
+	cout <<"T0: tPMT entries  "<< t->GetEntries()<< "  T0: tSIPM entries " << tSIPM->GetEntries() << endl;
 
 	// using SiPM Calibration from Class Event
 	auto ev = new Event();
-        auto evout = new EventOut();
+	auto evout = new EventOut();
 
 	//SiPMCalibration sipmCalibration("RunXXX.json");
 	SiPMCalibration sipmCalibration("RunXXXcalib_v1.3.5.json");
@@ -91,69 +93,69 @@ void DoCalibrationSPS(){
 	tSIPM->SetBranchAddress("HG_Board0",&ev->SiPMHighGain[0]);
 	tSIPM->SetBranchAddress("HG_Board1",&ev->SiPMHighGain[64]);
 	tSIPM->SetBranchAddress("HG_Board2",&ev->SiPMHighGain[128]);
- 	tSIPM->SetBranchAddress("HG_Board3",&ev->SiPMHighGain[192]);
- 	tSIPM->SetBranchAddress("HG_Board4",&ev->SiPMHighGain[256]);
- 	tSIPM->SetBranchAddress("LG_Board0",&ev->SiPMLowGain[0]);
- 	tSIPM->SetBranchAddress("LG_Board1",&ev->SiPMLowGain[64]);
- 	tSIPM->SetBranchAddress("LG_Board2",&ev->SiPMLowGain[128]);
- 	tSIPM->SetBranchAddress("LG_Board3",&ev->SiPMLowGain[192]);
- 	tSIPM->SetBranchAddress("LG_Board4",&ev->SiPMLowGain[256]);
+	tSIPM->SetBranchAddress("HG_Board3",&ev->SiPMHighGain[192]);
+	tSIPM->SetBranchAddress("HG_Board4",&ev->SiPMHighGain[256]);
+	tSIPM->SetBranchAddress("LG_Board0",&ev->SiPMLowGain[0]);
+	tSIPM->SetBranchAddress("LG_Board1",&ev->SiPMLowGain[64]);
+	tSIPM->SetBranchAddress("LG_Board2",&ev->SiPMLowGain[128]);
+	tSIPM->SetBranchAddress("LG_Board3",&ev->SiPMLowGain[192]);
+	tSIPM->SetBranchAddress("LG_Board4",&ev->SiPMLowGain[256]);
 
-        //int ADC[32];
+	//int ADC[32];
 	int ADC[96];
-        Long64_t TriggerMask =0;
-        t->SetBranchAddress("ADCs",&ADC);
-        t->SetBranchAddress("TriggerMask",&TriggerMask);
+	Long64_t TriggerMask =0;
+	t->SetBranchAddress("ADCs",&ADC);
+	t->SetBranchAddress("TriggerMask",&TriggerMask);
 
 
 	Float_t sumc=0; 
 	Float_t sums=0; 
 
 	TH1F *h_SumC_SIPM = new TH1F("SumC_SIPM", "SumC_SIPM", 2048, 0, 4096);
-        h_SumC_SIPM->GetXaxis()->SetTitle("ADC");
+	h_SumC_SIPM->GetXaxis()->SetTitle("ADC");
 
-        TH1F *h_SumS_SIPM = new TH1F("SumS_SIPM", "SumS_SIPM", 2000, 0, 6000);
-        h_SumS_SIPM->GetXaxis()->SetTitle("ADC");
+	TH1F *h_SumS_SIPM = new TH1F("SumS_SIPM", "SumS_SIPM", 2000, 0, 6000);
+	h_SumS_SIPM->GetXaxis()->SetTitle("ADC");
 	
 	int counter2=0;
 	// loop on ntuple entries to get adc peak position in T0 for equalization 
 	for( unsigned int i=0; i<t->GetEntries(); i++){
 	
-           tSIPM->GetEntry(i);	
-           t->GetEntry(i);
+		tSIPM->GetEntry(i);	
+		t->GetEntry(i);
 
-	   int ps=16;
-           int c1=64;
-           int c2=65;
-           float pd = 210;
-           float pd1 = 78.5;
-           float pd2 = 15.8;
-           double Ch1=ADC[c1]-pd1;
-           double Ch2=ADC[c2]-pd2;
-           double PSP=ADC[ps]-pd;
-           double MIP=60.;
-           double pscut_4point5mip=4.5*MIP;
-           bool pscut=PSP>pscut_4point5mip;
-	   bool chercut_loose = (Ch1>2 || Ch2 >10);
-           bool chercut_tight = (Ch1>5 || Ch2 >18);
-	   // Calibration of SiPM
-	   ev->calibrate(sipmCalibration, evout);
-	   if (i%50000 ==0) cout << i << " " << evout->totSiPMSene << " " << evout->totSiPMCene<< endl; 
+		int ps=16;
+		int c1=64;
+		int c2=65;
+		float pd = 210;
+		float pd1 = 78.5;
+		float pd2 = 15.8;
+		double Ch1=ADC[c1]-pd1;
+		double Ch2=ADC[c2]-pd2;
+		double PSP=ADC[ps]-pd;
+		double MIP=60.;
+		double pscut_4point5mip=4.5*MIP;
+		bool pscut=PSP>pscut_4point5mip;
+		bool chercut_loose = (Ch1>2 || Ch2 >10);
+		bool chercut_tight = (Ch1>5 || Ch2 >18);
+		// Calibration of SiPM
+		ev->calibrate(sipmCalibration, evout);
+		if (i%50000 ==0) cout << i << " " << evout->totSiPMSene << " " << evout->totSiPMCene<< endl; 
 
-	   // Sum of calibrated SiPM energy deposition
-           if(TriggerMask == 5){   // phys histo 
-	     //if(pscut && chercut_loose){// lateral leakage for PS>4.5mip
-	     if(chercut_tight){// event selection: tight cuts on both Cherenkov counters
-	       counter2++;
-	       h_SumS_SIPM->Fill(evout->totSiPMSene);
-	       h_SumC_SIPM->Fill(evout->totSiPMCene);
-	     }
-	   }// end phys case
+		// Sum of calibrated SiPM energy deposition
+		if(TriggerMask == 5){   // phys histo 
+			//if(pscut && chercut_loose){// lateral leakage for PS>4.5mip
+			if(chercut_tight){// event selection: tight cuts on both Cherenkov counters
+				counter2++;
+				h_SumS_SIPM->Fill(evout->totSiPMSene);
+				h_SumC_SIPM->Fill(evout->totSiPMCene);
+			}
+		}// end phys case
 
 
-	   //reset SiPM sum value 
-	   evout->totSiPMCene = 0;
-    	   evout->totSiPMSene = 0;
+		//reset SiPM sum value 
+		evout->totSiPMCene = 0;
+		evout->totSiPMSene = 0;
 
 	} // end for on events
 
@@ -421,7 +423,14 @@ void DoCalibrationSPS(){
 	return; 
  }
 
-// find average pedestal value and peak of the distribution for each tower, for both C and S
+/**
+ * Find average pedestal value and peak of the distribution for each tower, for both C and S.
+ * Read input merged Ntuple(mergedNtuple) with @runno in name, 
+ * And dump pedfile: 
+ * 		Pedestal Mean ADC S (0photon)	\t Pedestal Mean ADC C (0photon)
+ * 
+ * @return myadc, a vector of float with 4 elements: { 0photon ADC S, 0photon ADC C, peakwidth of ADC S , peakwidth of ADC C }
+ */
 std::vector<float> peakFinder(int tow, int runno, int s_idx, int c_idx,  string pedfile){
 
 	std::vector<float> myadc;
@@ -430,7 +439,7 @@ std::vector<float> peakFinder(int tow, int runno, int s_idx, int c_idx,  string 
 	cout << "tow: " << tow << "  c_idx:  " << c_idx << " s_idx:  " << s_idx << endl;
 
 	// write pedestal value to file
-        ofstream myPed;
+	ofstream myPed;
 	myPed.open(pedfile, ofstream::out | ofstream::app);
 
 	//input file
@@ -450,12 +459,12 @@ std::vector<float> peakFinder(int tow, int runno, int s_idx, int c_idx,  string 
 	
 	
 	int nbin =4096;
-        int xlow = 0;
-        int xhigh =4096;
-        int npbin =270;
-        int xplow = 0;
-        int xphigh =350;
-        
+	int xlow = 0;
+	int xhigh =4096;
+	int npbin =270;
+	int xplow = 0;
+	int xphigh =350;
+
 
 	TH1F *h_adc_S = new TH1F("adc distrib S", "adc_distribS", nbin, xlow,xhigh);
 	h_adc_S->GetXaxis()->SetTitle("ADC counts");
@@ -463,92 +472,92 @@ std::vector<float> peakFinder(int tow, int runno, int s_idx, int c_idx,  string 
 	TH1F *h_ped_S =new TH1F("ped distrib S", "ped_distribS", npbin, xplow, xphigh);
 	h_ped_S ->GetXaxis()->SetTitle("ADC counts");
 
-        TH1F *h_adc_C =new TH1F("adc distrib C", "adc_distribC", nbin, xlow,xhigh);
-        h_adc_C ->GetXaxis()->SetTitle("ADC counts");
+	TH1F *h_adc_C =new TH1F("adc distrib C", "adc_distribC", nbin, xlow,xhigh);
+	h_adc_C ->GetXaxis()->SetTitle("ADC counts");
 
-        TH1F *h_ped_C =new TH1F("ped distrib C", "ped_distribC", npbin, xplow, xphigh);
-        h_ped_C ->GetXaxis()->SetTitle("ADC counts");
+	TH1F *h_ped_C =new TH1F("ped distrib C", "ped_distribC", npbin, xplow, xphigh);
+	h_ped_C ->GetXaxis()->SetTitle("ADC counts");
 
 
 	//Loop over events for pedestal 
 	for( unsigned int i=0; i<t->GetEntries(); i++){
 	   
-	   t->GetEntry(i);
+		t->GetEntry(i);
 	
-	   if(TriggerMask == 6){   // pedestal events
-		h_ped_S->Fill(ADC[s_idx]);			
-		h_ped_C->Fill(ADC[c_idx]);			
-	   }
+		if(TriggerMask == 6){   // pedestal events
+			h_ped_S->Fill(ADC[s_idx]);			
+			h_ped_C->Fill(ADC[c_idx]);			
+		}
 	} // end loop for ped
 
 	Float_t s_ped =  h_ped_S->GetMean();
 	Float_t c_ped =  h_ped_C->GetMean();
 	
-        cout << s_ped << " " << c_ped << endl;
+	cout << s_ped << " " << c_ped << endl;
 	myPed << s_ped << "\t " << c_ped << endl;
 
 	int counter1=0;	
 	// Loop over events for ADC
-        for( unsigned int i=0; i<t->GetEntries(); i++){
+	for( unsigned int i=0; i<t->GetEntries(); i++){
 
-          t->GetEntry(i);
-	  int ps=16;
-          int c1=64;
-          int c2=65;
-          float pd = 210;
-          float pd1 = 78.5;
-          float pd2 = 15.8;
-	  double Ch1=ADC[c1]-pd1;
-          double Ch2=ADC[c2]-pd2;
-          double PSP=ADC[ps]-pd;
-          double MIP=60.;
-          double pscut_4point5mip=4.5*MIP;
-          bool pscut=PSP>pscut_4point5mip;
-	  bool chercut_tight = (Ch1>5 || Ch2 >18);
+		t->GetEntry(i);
+		int ps=16;
+		int c1=64;
+		int c2=65;
+		float pd = 210;
+		float pd1 = 78.5;
+		float pd2 = 15.8;
+		double Ch1=ADC[c1]-pd1;
+		double Ch2=ADC[c2]-pd2;
+		double PSP=ADC[ps]-pd;
+		double MIP=60.;
+		double pscut_4point5mip=4.5*MIP;
+		bool pscut=PSP>pscut_4point5mip;
+		bool chercut_tight = (Ch1>5 || Ch2 >18);
 
-	  if(TriggerMask == 5){   // physics trigger
-	    if(chercut_tight){ // event selection: tights cuts on both Cherenkov counters
-		counter1++;
-		h_adc_S->Fill(ADC[s_idx]-s_ped);			
-		h_adc_C->Fill(ADC[c_idx]-c_ped);			
-	    }
-	  }
+		if(TriggerMask == 5){   // physics trigger
+			if(chercut_tight){ // event selection: tights cuts on both Cherenkov counters
+				counter1++;
+				h_adc_S->Fill(ADC[s_idx]-s_ped);
+				h_adc_C->Fill(ADC[c_idx]-c_ped);
+			}
+		}
 	} // end loop on event
 
 	cout<<"counter1:  "<<counter1<<endl;
-        TCanvas *c1=new TCanvas("mytower","mytower",1000, 1000);
-        c1->Divide(2,2);
-        c1->cd(1);
-        gPad->SetLogy();
-        h_ped_S->Draw();
-        c1->cd(2);
-        gPad->SetLogy();
-        h_ped_C->Draw();
-        c1->cd(3);
-        gPad->SetLogy();
-        h_adc_S->Draw();
-        c1->cd(4);
-        gPad->SetLogy();
-        h_adc_C->Draw();
+	TCanvas *c1=new TCanvas("mytower","mytower",1000, 1000);
+	c1->Divide(2,2);
+	c1->cd(1);
+	gPad->SetLogy();
+	h_ped_S->Draw();
+	c1->cd(2);
+	gPad->SetLogy();
+	h_ped_C->Draw();
+	c1->cd(3);
+	gPad->SetLogy();
+	h_adc_S->Draw();
+	c1->cd(4);
+	gPad->SetLogy();
+	h_adc_C->Draw();
 	myadc.push_back(s_ped);
 	myadc.push_back(c_ped);
 
-        TCanvas *c10 = new TCanvas("fit pan", "fit pan", 1000, 700);
-        c10->Divide(1,2);
-        c10->cd(1);
-        gPad->SetLogy();
-        h_adc_S->Draw();
-        h_adc_S->GetXaxis()->SetRangeUser(400, 2000);//150 changed
-        int binmax1 = h_adc_S->GetMaximumBin();
-        double x_S = h_adc_S->GetXaxis()->GetBinCenter(binmax1);
-        c10->cd(2);
-        gPad->SetLogy();
-        h_adc_C->Draw();
+	TCanvas *c10 = new TCanvas("fit pan", "fit pan", 1000, 700);
+	c10->Divide(1,2);
+	c10->cd(1);
+	gPad->SetLogy();
+	h_adc_S->Draw();
+	h_adc_S->GetXaxis()->SetRangeUser(400, 2000);//150 changed
+	int binmax1 = h_adc_S->GetMaximumBin();
+	double x_S = h_adc_S->GetXaxis()->GetBinCenter(binmax1);
+	c10->cd(2);
+	gPad->SetLogy();
+	h_adc_C->Draw();
 	h_adc_C->GetXaxis()->SetRangeUser(400, 2000);
-        int binmax2 = h_adc_C->GetMaximumBin();
-        double x_C = h_adc_C->GetXaxis()->GetBinCenter(binmax2);
-        c10->Update();
-        cout << x_S << " " << x_C << endl;
+	int binmax2 = h_adc_C->GetMaximumBin();
+	double x_C = h_adc_C->GetXaxis()->GetBinCenter(binmax2);
+	c10->Update();
+	cout << x_S << " " << x_C << endl;
 	myadc.push_back(x_S);
 	myadc.push_back(x_C);
 

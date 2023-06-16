@@ -136,12 +136,12 @@ def main():
         print( "->Found new file to be rootified: " + str(fl) )
         os.system("bzip2 -d -k "+datapath+ '/' + str(fl)+".bz2")
         print( "--->"+str(fl)+".bz2 decompressed")
-        fname = fl[0:-4]
+        fname = fl[0:-4] # remove .txt in the name
         dr = DRrootify(datapath+'/' +fname)
         dr.ReadandRoot()
         dr.Write()
-        os.system("rm "+datapath+'/' + fl)
-        os.system("mv "+datapath+ '/' + str(fl[0:-4])+".root "+ntuplepath + '/') 
+        os.system("rm "+datapath+'/' + fl) # remove decompressed txt files
+        os.system("mv "+datapath+ '/' + str(fl[0:-4])+".root "+ntuplepath + '/') # move output ntuple to output dir
     else:
         print( "->No new files found"            )
 

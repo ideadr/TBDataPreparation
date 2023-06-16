@@ -22,6 +22,16 @@ doNotMerge = False
 ####### main function to merge SiPM and PMT root files with names specified as arguments
     
 def CreateBlendedFile(SiPMFileName,DaqFileName,outputfilename):
+    """ Main function to merge SiPM and PMT root files with names specified as arguments
+
+    Args:
+        SiPMFileName (str): H0 root file
+        DaqFileName (str): H1-H8 root file
+        outputfilename (str): output merged root file
+
+    Returns:
+        int: 0
+    """
     SiPMinfile = None
     Daqinfile = None
     
@@ -79,6 +89,17 @@ def CreateBlendedFile(SiPMFileName,DaqFileName,outputfilename):
 # main function to reorder and merge the SiPM file
 
 def CloneSiPMTree(DaqInputTree,SiPMInput,OutputFile):
+    """ Create a new tree named SiPMNewTreeName("SiPMSPS2021") record board info after considering the offset.
+        The logic is the following: 
+        - start with a loop on the Daq tree. 
+        - For each event find out which entries of the SiPMInput need to be looked at (those with corresponding TriggerId) with the offset. 
+        - Once this information is available, copy the information of the boards and save the tree
+
+    Args:
+        DaqInputTree (TTree): DaqTreeName("CERNSPS2021") Tree in H1-H8 root file
+        SiPMInput (TTree): SiPMTreeName("SiPMData") Tree in H0 root file
+        OutputFile (TFile): Output Root file.
+    """
     newTree = OutputFile.Get(SiPMNewTreeName)
     TriggerTimeStampUs = array('d',[0])
     EventNumber = array('i',[0])
@@ -150,14 +171,30 @@ def CloneSiPMTree(DaqInputTree,SiPMInput,OutputFile):
 
 
 def DetermineOffset(SiPMTree,DAQTree):
+    """ Scan possible offsets to find out for which one we get the best match 
+        between the pedList and the missing TriggerId which could be caused by pedestal.
+        Generate four plots:
+            - histo: TH1F of discrete difference along the pedestal series.
+            - histo2: TH1F of discrete difference of the events from SiPM file with no trigger.
+            - graph: TGraph of pedestals, x-axis is TriggerMask.
+            - graph2: TGraph of the events from SiPM file with no trigger, x-axis is TriggerId.
+            - graph3: TGraph of points of ( scanned offset, difference length ).
+
+    Args:
+        SiPMTree (TTree): SiPMTreeName("SiPMData") Tree in H0 root file
+        DAQTree (TTree): DaqTreeName("CERNSPS2021") Tree in H1-H8 root file
+
+    Returns:
+        int: the Offset applied on H1-H8 matches H1-H8 to H0.
+    """
     x = array('i')
     y = array('i')
     xsipm = array('i')
     ysipm = array('i')
     ##### build a list of entries of pedestal events in the DAQ Tree
-    DAQTree.SetBranchStatus("*",0)
-    DAQTree.SetBranchStatus("TriggerMask",1)
-    pedList = set()
+    DAQTree.SetBranchStatus("*",0) # disable all branches
+    DAQTree.SetBranchStatus("TriggerMask",1) # only process "TriggerMask" branch
+    pedList = set() # pedestal
     evList = set()
     for iev,ev in enumerate(DAQTree):
         if ev.TriggerMask == 6:
@@ -165,8 +202,8 @@ def DetermineOffset(SiPMTree,DAQTree):
         evList.add(iev)
     DAQTree.SetBranchStatus("*",1)
     ##### Now build a list of missing TriggerId in the SiPM tree
-    SiPMTree.SetBranchStatus("*",0)
-    SiPMTree.SetBranchStatus("TriggerId",1)
+    SiPMTree.SetBranchStatus("*",0) # disable all branches
+    SiPMTree.SetBranchStatus("TriggerId",1) # only process "TriggerId" branch
     TriggerIdList = set()
     for ev in SiPMTree:
         TriggerIdList.add(ev.TriggerId)
@@ -191,7 +228,9 @@ def DetermineOffset(SiPMTree,DAQTree):
         hist2.Fill(i)
     hist2.Write()
     graph = ROOT.TGraph(len(x),x,y)
+    graph.SetTitle( "pedList; EventNumber; 2" )
     graph2 = ROOT.TGraph(len(xsipm),xsipm,ysipm)
+    graph2.SetTitle( "SiPM no trigger; EventNumber; 1" )
     graph2.SetMarkerStyle(6)
     graph2.SetMarkerColor(ROOT.kRed)
     graph.SetMarkerStyle(6)
@@ -204,6 +243,9 @@ def DetermineOffset(SiPMTree,DAQTree):
     minLen = 10000000
     
     diffLen = {}
+    
+    scanned_offset = array('i')
+    scanned_diffLen = array('i')
 
     for offset in range(-4,5):
         offset_set = {x+offset for x in pedList}
@@ -213,7 +255,14 @@ def DetermineOffset(SiPMTree,DAQTree):
             minLen = len(diffSet)
             minOffset = offset
         print( "Offset " + str(offset) + ": " + str(diffLen[offset]) + " ped triggers where SiPM fired")
+        scanned_offset.append(offset)
+        scanned_diffLen.append(len(diffSet))
     print( "Minimum value " + str(minLen) + " occurring for " + str(minOffset) + " offset")
+    
+    graph3 = ROOT.TGraph(len(scanned_offset),scanned_offset,scanned_diffLen)
+    graph3.SetMarkerStyle(6)
+    graph3.SetTitle( "offset scan; offset; diffLength" )
+    graph3.Write()
 
     return minOffset
 
@@ -235,6 +284,11 @@ def doRun(runnumber,outfilename):
     return CreateBlendedFile(inputSiPMFileName,inputDaqFileName,outfilename)
 
 def GetNewRuns():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     retval = []
     sim_list = glob.glob(SiPMFileDir + '/*')
     daq_list = glob.glob(DaqFileDir + '/*')
@@ -270,7 +324,12 @@ def GetNewRuns():
         
 def main():
     import argparse                                                                      
-    parser = argparse.ArgumentParser(description='This script runs the merging of the "SiPM" and the "Daq" daq events. The option --newFiles shoudl be used only in TB mode, has the priority on anything else, and tries to guess which new files are there and merge them. \n Otherwise, the user needs to provide either --inputSiPM and --inputDaq, or --runNumber. --runNumber has priority if both sets of options are provided. --runNumber will assume the lxplus default test beam file location.')
+    parser = argparse.ArgumentParser(description='This script runs the merging of the "SiPM" and the "Daq" daq events. \
+        The option --newFiles shoudl be used only in TB mode, has the priority on anything else, \
+        and tries to guess which new files are there and merge them. \n \
+        Otherwise, the user needs to provide either --inputSiPM and --inputDaq, or --runNumber. \
+        --runNumber has priority if both sets of options are provided. \
+        --runNumber will assume the lxplus default test beam file location.')
     parser.add_argument('--inputSiPM', dest='inputSiPM',default='0',help='Input SiPM file')
     parser.add_argument('--inputDaq', dest='inputDaq',default='0',help='Input Daq file')
     parser.add_argument('--output', dest='outputFileName',default='SiPM_PMT_output.root',help='Output file name')
