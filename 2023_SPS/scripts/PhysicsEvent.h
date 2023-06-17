@@ -130,8 +130,8 @@ class Event{
 		int CPMT1, CPMT2, CPMT3, CPMT4, CPMT5, CPMT6, CPMT7, CPMT8;
 		int DWC1L, DWC1R, DWC1U, DWC1D, DWC2L, DWC2R, DWC2U, DWC2D;
 
-		UShort_t SiPMHighGain[320];
-		UShort_t SiPMLowGain[320];
+		UShort_t SiPMHighGain[320]; // Read HG board info from root file
+		UShort_t SiPMLowGain[320]; // Read LG board info from root file
 
 		void calibrate(const SiPMCalibration&, EventOut*);
 		void calibratePMT(const PMTCalibration&, EventOut*);
@@ -168,15 +168,15 @@ void Event::calibrate(const SiPMCalibration& calibration, EventOut* evout){
 				// Cher
 				evout->SiPMPheC[ind] = SiPMPhe/calibration.PheGeVC[0];
 				evout->totSiPMCene += SiPMPhe/calibration.PheGeVC[0];
-//				if(ind != ccount && nmiss==0)
-//					cout << " ind " << ind << " ccount " << ccount << endl;
+                //if(ind != ccount && nmiss==0)
+                //cout << " ind " << ind << " ccount " << ccount << endl;
 				ccount++;
 			} else {
 				// Scin
 				evout->SiPMPheS[ind] = SiPMPhe/calibration.PheGeVS[0];
 				evout->totSiPMSene += SiPMPhe/calibration.PheGeVS[0];
-//				if(ind != scount && nmiss==0)
-//					cout << " ind " << ind << " scount " << scount << endl;
+                //if(ind != scount && nmiss==0)
+                //cout << " ind " << ind << " scount " << scount << endl;
 				scount++;
 			}
 		}
