@@ -15,7 +15,6 @@
 #include <array>
 #include <stdint.h>
 #include <string>
-#include "json.hpp"
 #include <fstream>
 #include "PhysicsEvent.h"
 #include <string>
@@ -25,15 +24,16 @@ using json = nlohmann::json;
 
 ClassImp(EventOut)
 
-void PhysicsConverter(const string run){
+void PhysicsConverter(const string run, const string inputPath, const string calFile ){
 
   //Open merged ntuples
   //
-  string infile = "/eos/user/i/ideadr/TB2021_H8/CERNDATA/v1.3/mergedNtuple/merged_sps2021_run"+run+".root";
+  string infile = inputPath+"merged_sps2021_run"+run+".root"; // Actually we can also merge the merged_sps2021_run into inputPath
+  infile = inputPath+"output"+run+".root";
   std::cout<<"Using file: "<<infile<<std::endl;
   char cinfile[infile.size() + 1];
   strcpy(cinfile, infile.c_str());
-  string outfile = "physics_sps2021_run"+run+".root";
+  string outfile = "physics_sps2021_run"+run+".root"; // Make sure this matches the mv file in DoPhysicsConverter.py
   char coutfile[outfile.size() + 1];
   strcpy(coutfile, outfile.c_str());
   auto Mergfile = new TFile(cinfile, "READ");
@@ -49,9 +49,9 @@ void PhysicsConverter(const string run){
   ftree->Branch("Events",evout);
   //Create calibration objects
   //
-  SiPMCalibration sipmCalibration("RunXXX_modified_v1.3.5.json");
-  PMTCalibration pmtCalibration("RunXXX_modified_v1.3.5.json");
-  DWCCalibration dwcCalibration("RunXXX_modified_v1.3.5.json");
+  SiPMCalibration sipmCalibration(calFile);
+  PMTCalibration pmtCalibration(calFile);
+  DWCCalibration dwcCalibration(calFile);
 
   //Check entries in trees
   //

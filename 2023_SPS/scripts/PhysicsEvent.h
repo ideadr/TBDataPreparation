@@ -12,7 +12,7 @@
 #include <array>
 #include <stdint.h>
 #include <string>
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 #include <fstream>
 
 #ifndef Event_H
@@ -72,41 +72,46 @@ DWCCalibration::DWCCalibration(const std::string& fname){
     DWC_z = jFile["Calibrations"]["DWC"]["DWC_z"];
 }
 
+/**
+ * 
+ */
 class EventOut{
-  public:
-	EventOut(){};
-	~EventOut(){};
-	uint32_t EventID;
+    public:
+	    EventOut(){};
+	    ~EventOut(){};
+	    uint32_t EventID;
 
         float SPMT1, SPMT2, SPMT3, SPMT4, SPMT5, SPMT6, SPMT7, SPMT8;
-    	float CPMT1, CPMT2, CPMT3, CPMT4, CPMT5, CPMT6, CPMT7, CPMT8;
+        float CPMT1, CPMT2, CPMT3, CPMT4, CPMT5, CPMT6, CPMT7, CPMT8;
         float SiPMPheC[160] = {0};
         float SiPMPheS[160] = {0};
-	float totSiPMCene = 0.;
-	float totSiPMSene = 0.;
-	int NSiPMZero= 0.;
-	float SPMTenergy = 0.;
-	float CPMTenergy = 0.;
-	float XDWC1,XDWC2,YDWC1,YDWC2;
-	int PShower, MCounter, C1, C2;
+	    float totSiPMCene = 0.;
+	    float totSiPMSene = 0.;
+	    int NSiPMZero= 0.;
+	    float SPMTenergy = 0.;
+	    float CPMTenergy = 0.;
+	    float XDWC1,XDWC2,YDWC1,YDWC2;
+	    int PShower, MCounter, C1, C2;
 
-	void CompSPMTene(){SPMTenergy = SPMT1+SPMT2+SPMT3+SPMT4+SPMT5+SPMT6+SPMT7+SPMT8;}
-	void CompCPMTene(){CPMTenergy = CPMT1+CPMT2+CPMT3+CPMT4+CPMT5+CPMT6+CPMT7+CPMT8;}
+        void CompSPMTene(){SPMTenergy = SPMT1+SPMT2+SPMT3+SPMT4+SPMT5+SPMT6+SPMT7+SPMT8;}
+        void CompCPMTene(){CPMTenergy = CPMT1+CPMT2+CPMT3+CPMT4+CPMT5+CPMT6+CPMT7+CPMT8;}
+        
         int SiPMCol(int index){ return index%16; }
         int SiPMRow(int index){ return index/16; }
+        
         pair<double, double> SiPMSpos(int index){
-           int row = index / 16;
-           int column = index%16;
-           double x = (column-7)*2-1.5;
-           double y = 2.*sq3*(4-row)+sq3/2;
-           return pair<double,double>(x,y);
+            int row = index / 16;
+            int column = index%16;
+            double x = (column-7)*2-1.5;
+            double y = 2.*sq3*(4-row)+sq3/2;
+            return pair<double,double>(x,y);
         }
         pair<double, double> SiPMCpos(int index){
-           int row = index / 16;
-           int column = index%16;
-           double x = (column-7)*2-0.5;
-           double y = 2.*sq3*(4-row)+1.5*sq3;
-           return pair<double,double>(x,y);
+            int row = index / 16;
+            int column = index%16;
+            double x = (column-7)*2-0.5;
+            double y = 2.*sq3*(4-row)+1.5*sq3;
+            return pair<double,double>(x,y);
         }
 };
 
@@ -125,8 +130,8 @@ class Event{
 		int CPMT1, CPMT2, CPMT3, CPMT4, CPMT5, CPMT6, CPMT7, CPMT8;
 		int DWC1L, DWC1R, DWC1U, DWC1D, DWC2L, DWC2R, DWC2U, DWC2D;
 
-		UShort_t SiPMHighGain[320];
-		UShort_t SiPMLowGain[320];
+		UShort_t SiPMHighGain[320]; // Read HG board info from root file
+		UShort_t SiPMLowGain[320]; // Read LG board info from root file
 
 		void calibrate(const SiPMCalibration&, EventOut*);
 		void calibratePMT(const PMTCalibration&, EventOut*);
@@ -163,15 +168,15 @@ void Event::calibrate(const SiPMCalibration& calibration, EventOut* evout){
 				// Cher
 				evout->SiPMPheC[ind] = SiPMPhe/calibration.PheGeVC[0];
 				evout->totSiPMCene += SiPMPhe/calibration.PheGeVC[0];
-//				if(ind != ccount && nmiss==0)
-//					cout << " ind " << ind << " ccount " << ccount << endl;
+                //if(ind != ccount && nmiss==0)
+                //cout << " ind " << ind << " ccount " << ccount << endl;
 				ccount++;
 			} else {
 				// Scin
 				evout->SiPMPheS[ind] = SiPMPhe/calibration.PheGeVS[0];
 				evout->totSiPMSene += SiPMPhe/calibration.PheGeVS[0];
-//				if(ind != scount && nmiss==0)
-//					cout << " ind " << ind << " scount " << scount << endl;
+                //if(ind != scount && nmiss==0)
+                //cout << " ind " << ind << " scount " << scount << endl;
 				scount++;
 			}
 		}
