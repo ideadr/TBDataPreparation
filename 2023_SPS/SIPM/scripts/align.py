@@ -1,6 +1,8 @@
-import os, sys, subprocess, uproot
+import os
+import sys
+import subprocess
+import uproot
 from glob import glob
-import multiprocessing as mp
 from tqdm import tqdm
 import numpy as np
 from scipy.io import savemat
@@ -57,19 +59,31 @@ def runAlignement(fname):
 
     # Align data
     for i, t in enumerate(
-        tqdm(tiduniq, leave=False, dynamic_ncols=True, position=1, colour="RED", desc=fname.rsplit("/", 1)[-1])
+        tqdm(
+            tiduniq,
+            leave=False,
+            dynamic_ncols=True,
+            position=1,
+            colour="RED",
+            desc=fname.rsplit("/", 1)[-1],
+        )
     ):
+        # tid is sorted!
         firstidx = np.searchsorted(tid, t)
-        nBoards = np.count_nonzero(tid[firstidx : firstidx + 5] == t)
-        boards = bid[firstidx : firstidx + nBoards]
+        nBoards = np.count_nonzero(tid[firstidx: firstidx + 5] == t)
+        boards = bid[firstidx: firstidx + nBoards]
         for j in range(nBoards):
             b = boards[j]
-            hgMatrix[b * 4 : b * 4 + 4, :, i] = hg[firstidx + j].reshape(4, 16)
-            lgMatrix[b * 4 : b * 4 + 4, :, i] = lg[firstidx + j].reshape(4, 16)
+            hgMatrix[b * 4: b * 4 + 4, :, i] = hg[firstidx + j].reshape(4, 16)
+            lgMatrix[b * 4: b * 4 + 4, :, i] = lg[firstidx + j].reshape(4, 16)
     np.savez_compressed(fname[:-5], hg=hgMatrix, lg=lgMatrix, tid=tiduniq)
     savemat(
         fname[:-5] + ".mat",
-        {"matrixHighGainSiPM": hgMatrix, "matrixLowGainSiPM": lgMatrix, "triggerId": tiduniq},
+        {
+            "matrixHighGainSiPM": hgMatrix,
+            "matrixLowGainSiPM": lgMatrix,
+            "triggerId": tiduniq,
+        },
         do_compression=True,
         oned_as="row",
     )
