@@ -1,6 +1,8 @@
 import struct
 import numpy as np
 
+FILE_HEADER_SIZE = 21
+
 MAPPING_LUT = [
     0,  40, 8,  32, # 0 - 3
     1,  41, 9,  33, # 4 - 7

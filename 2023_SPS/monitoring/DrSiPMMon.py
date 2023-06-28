@@ -237,7 +237,7 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
     
     with open(self.fname, "rb") as infile:
       # reading in file header (not used atm)
-      data=infile.read(14)
+      data=infile.read(DRSiPMEvent.FILE_HEADER_SIZE)
       i = 0
       step = 1
       while data:
@@ -417,7 +417,7 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
         if hIdx < len(self.cmdShCuts): 
           self.cmdShCuts[ self.cmdShCutsV[hIdx] ]()
       else: 
-        self.DrawSingleHisto(cmd, opt)
+        self.DrawSingleHisto(cmd, opt, self.hDict)
 
 
 ################################################################

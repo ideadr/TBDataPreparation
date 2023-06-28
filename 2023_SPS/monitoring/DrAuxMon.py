@@ -631,7 +631,7 @@ class DrAuxMon(DrBaseMon.DrBaseMon):
         if hIdx < len(self.cmdShCuts): 
           self.cmdShCuts[ self.cmdShCutsV[hIdx] ]()
       else: 
-        self.DrawSingleHisto(cmd, opt)
+        self.DrawSingleHisto(cmd, opt, self.hDict)
 
 
 def Usage():
