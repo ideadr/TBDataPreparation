@@ -14,6 +14,8 @@ importlib.reload(DrBaseMon)
 
 PathToData='./'
 
+NBOARDS = 5
+
 ################################################################
 # SIGNAL HANDLER ###############################################
 ################################################################
@@ -58,8 +60,8 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
 ##### DrMon method #######
   def bookOthers(self):
     '''Book histograms which were not booked during reading of file '''
-    self.book1D( "boardID", self.hDict, 5, -0.5, 4.5, "BoardID", ymin=0)
-    self.book1D( "numBoard", self.hDict, 5, 0.5, 5.5, "Num. of Boards per Event")
+    self.book1D( "boardID", self.hDict, NBOARDS, -0.5, 4.5, "BoardID", ymin=0)
+    self.book1D( "numBoard", self.hDict, NBOARDS, 0.5, 5.5, "Num. of Boards per Event")
 
 ##### DrMon method #######
   def evtFill(self, evt):
@@ -104,11 +106,23 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
   def hFillEvent(self):
     '''Fill the histograms with combined event information (after looping and combining event information) '''
     
-    lg_list_of_lists = []
-    hg_list_of_lists = []
+    lg_values_for_channel = []
+    hg_values_for_channel = []
     for i in range(DRSiPMEvent.NCHANNELS):
-      lg_list_of_lists.append([])
-      hg_list_of_lists.append([])
+      lg_values_for_channel.append([])
+      hg_values_for_channel.append([])
+
+    lg_channels_for_board = []
+    hg_channels_for_board = []
+
+    lg_board_dict = {}
+    hg_board_dict = {}
+    for i in range(NBOARDS):
+      lg_board_dict[f"{i}"] = {}
+      hg_board_dict[f"{i}"] = {}
+      for ch in range(DRSiPMEvent.NCHANNELS):
+        lg_board_dict[f"{i}"][f"{ch:02d}"] = []
+        hg_board_dict[f"{i}"][f"{ch:02d}"] = []
 
     lglist = []
     hglist = []
@@ -145,11 +159,14 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
       # one "evt" is the information of one board 
       for evt in self.evtDict[key]:
         self.hFill(evt)
+        board = evt.BoardID
         for channel_id, lg in enumerate(evt.lgPha):
-            lg_list_of_lists[channel_id].append(lg)
+            lg_values_for_channel[channel_id].append(lg)
+            lg_board_dict[f"{board}"][f"{channel_id:02d}"].append(lg)
             if lg > maxlg_list[channel_id]: maxlg_list[channel_id] = lg
         for channel_id, hg in enumerate(evt.hgPha):
-            hg_list_of_lists[channel_id].append(hg)
+            hg_values_for_channel[channel_id].append(hg)
+            hg_board_dict[f"{board}"][f"{channel_id:02d}"].append(hg)
             if hg > maxhg_list[channel_id]: maxhg_list[channel_id] = hg
             
             
@@ -162,28 +179,46 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
       if hgPhaSum > maxhg: maxhg = hgPhaSum
 
     # can only book these histos after the maximal value is known
-    self.book1D("lgPhaSum", self.hDict, 4096, 0, maxlg+1, "lgPha Sum")
-    self.book1D("hgPhaSum", self.hDict, 8192, 0, maxhg+1, "hgPha Sum")
-    self.book1D("lgPhaSumZoom", self.hDict, 512, 2000, 5000, "lg Pha Sum Zoom")
+    #self.book1D("lgPhaSum", self.hDict, 4096, 0, maxlg+1, "lgPha Sum")
+    #self.book1D("hgPhaSum", self.hDict, 8192, 0, maxhg+1, "hgPha Sum")
+    #self.book1D("lgPhaSumZoom", self.hDict, 512, 2000, 5000, "lg Pha Sum Zoom")
+    """
     for i in range(DRSiPMEvent.NCHANNELS):
         self.book1D(f"lgPha_{i:02d}", self.hDict, 4096, 0, maxlg_list[i]+1, f"lgPha for Channel {i:02d}")
         self.book1D(f"hgPha_{i:02d}", self.hDict, 4096, 0, maxhg_list[i]+1, f"hgPha for Channel {i:02d}")
+    """
+    for board, board_dict in lg_board_dict.items():
+      for channel in board_dict.keys():
+        self.book1D(f"b{board}_ch{channel}_lg", self.hDict, 4096, 0, 4096, f"low gain ADC for board {board} channel {channel}")
+        self.book1D(f"b{board}_ch{channel}_hg", self.hDict, 4096, 0, 4096, f"high gain ADC for board {board} channel {channel}")
+    
 
     # need to loop over the list again to fill histos
-    for lg, hg in zip(lglist, hglist):
-      self.hDict["lgPhaSum"].Fill(lg)
-      self.hDict["hgPhaSum"].Fill(hg)
-      self.hDict["lgPhaSumZoom"].Fill(lg)
+    #for lg, hg in zip(lglist, hglist):
+    #  self.hDict["lgPhaSum"].Fill(lg)
+    #  self.hDict["hgPhaSum"].Fill(hg)
+    #  self.hDict["lgPhaSumZoom"].Fill(lg)
 
-    for i, channel in enumerate(lg_list_of_lists):
+    """
+    for i, channel in enumerate(lg_values_for_channel):
       for value in channel:
         key = f"lgPha_{i:02d}"
         self.hDict[key].Fill(value)
 
-    for i, channel in enumerate(hg_list_of_lists):
+    for i, channel in enumerate(hg_values_for_channel):
       for value in channel:
         key = f"hgPha_{i:02d}"
         self.hDict[key].Fill(value)
+    """
+    for board, board_dict in lg_board_dict.items():
+      for channel, channel_list in board_dict.items():
+        for value in channel_list:
+            self.hDict[f"b{board}_ch{channel}_lg"].Fill(value)
+
+    for board, board_dict in hg_board_dict.items():
+      for channel, channel_list in board_dict.items():
+        for value in channel_list:
+            self.hDict[f"b{board}_ch{channel}_hg"].Fill(value)
 
     print(f"Skipped {badevtcounter} events with more than 5 boards")
 
@@ -333,8 +368,14 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
   def PrintHelp(self):
     '''Help: shows available commands and histograms'''
     print(BLU, "Available histograms:", NOCOLOR)
-    for key in self.hDict:
-      print(BLU, key, NOCOLOR)
+    for key in self.hDict.keys():
+      if not key.endswith("_lg") and not key.endswith("_hg"):
+        print(BLU, key, NOCOLOR)
+    l = sorted(self.hDict.keys()) 
+    l_lg =  [x for x in l if x.endswith("_lg")]
+    l_hg =  [x for x in l if x.endswith("_hg")]
+    print("  %-8s   %-8s   %-8s " % ( l_lg[0], '--->', l_lg[-1] ))
+    print("  %-8s   %-8s   %-8s " % ( l_hg[0], '--->', l_hg[-1] ))
     print(BLU, "\nenter histogram name to draw single histogram", NOCOLOR)
     print("\n--------------------------------------------------")
     print(BLU, "Available commands:", NOCOLOR)
