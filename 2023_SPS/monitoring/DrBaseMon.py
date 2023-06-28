@@ -95,16 +95,16 @@ class DrBaseMon:
   
     if self.canNum != 1:
       self.createCanvas(1)
-    #if hDict is None: hDict=self.hDict
+    if hDict is None: hDict=self.hDict
     h = None
     hname = cmd
 
     commandfound = True
-    if hname in self.hDict:
-      h = self.hDict[hname]
+    if hname in hDict:
+      h = hDict[hname]
     elif (hasattr(self, 'histoMap')):
       if (hname in self.histoMap):
-        h = self.hDict[ self.histoMap[hname] ]
+        h = hDict[ self.histoMap[hname] ]
       else: commandfound = False
     else: commandfound = False
 
@@ -116,3 +116,5 @@ class DrBaseMon:
     h.Draw(opt)
     self.checkOverUnderFlow(h)
     self.canvas.Update()
+
+

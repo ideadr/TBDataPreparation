@@ -47,11 +47,11 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
     if len(tmp) != 0:
       self.runNum = tmp[-1]
     self.cmdShCuts  = {        # Mapping between command shortCuts and commands
-      "all"     : self.DrawAll,
-      "board"   : self.DrawBoard,
-      "pha"     : self.DrawPHA,
-      "trigger" : self.DrawTrigger,
-      "help"    : self.PrintHelp,
+      "all"         : self.DrawAll,
+      "board"       : self.DrawBoard,
+      "pha"         : self.DrawPHA,
+      "trigger"     : self.DrawTrigger,
+      "sipmhelp"    : self.PrintHelp,
     }
 
 
@@ -108,13 +108,16 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
     hg_list_of_lists = []
     for i in range(DRSiPMEvent.NCHANNELS):
       lg_list_of_lists.append([])
-      lg_list_of_lists.append([])
+      hg_list_of_lists.append([])
 
     lglist = []
     hglist = []
 
     maxlg = 0
     maxhg = 0
+
+    maxlg_list = [0]*DRSiPMEvent.NCHANNELS
+    maxhg_list = [0]*DRSiPMEvent.NCHANNELS
 
     badevtcounter = 0
 
@@ -144,6 +147,11 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
         self.hFill(evt)
         for channel_id, lg in enumerate(evt.lgPha):
             lg_list_of_lists[channel_id].append(lg)
+            if lg > maxlg_list[channel_id]: maxlg_list[channel_id] = lg
+        for channel_id, hg in enumerate(evt.hgPha):
+            hg_list_of_lists[channel_id].append(hg)
+            if hg > maxhg_list[channel_id]: maxhg_list[channel_id] = hg
+            
             
         lgPhaSum += sum(evt.lgPha)
         hgPhaSum += sum(evt.hgPha)
@@ -157,12 +165,25 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
     self.book1D("lgPhaSum", self.hDict, 4096, 0, maxlg+1, "lgPha Sum")
     self.book1D("hgPhaSum", self.hDict, 8192, 0, maxhg+1, "hgPha Sum")
     self.book1D("lgPhaSumZoom", self.hDict, 512, 2000, 5000, "lg Pha Sum Zoom")
+    for i in range(DRSiPMEvent.NCHANNELS):
+        self.book1D(f"lgPha_{i:02d}", self.hDict, 4096, 0, maxlg_list[i]+1, f"lgPha for Channel {i:02d}")
+        self.book1D(f"hgPha_{i:02d}", self.hDict, 4096, 0, maxhg_list[i]+1, f"hgPha for Channel {i:02d}")
 
     # need to loop over the list again to fill histos
     for lg, hg in zip(lglist, hglist):
       self.hDict["lgPhaSum"].Fill(lg)
       self.hDict["hgPhaSum"].Fill(hg)
       self.hDict["lgPhaSumZoom"].Fill(lg)
+
+    for i, channel in enumerate(lg_list_of_lists):
+      for value in channel:
+        key = f"lgPha_{i:02d}"
+        self.hDict[key].Fill(value)
+
+    for i, channel in enumerate(hg_list_of_lists):
+      for value in channel:
+        key = f"hgPha_{i:02d}"
+        self.hDict[key].Fill(value)
 
     print(f"Skipped {badevtcounter} events with more than 5 boards")
 
@@ -251,8 +272,8 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
     self.canvas.cd(1); self.hDict['numBoard'].Draw()
     self.canvas.cd(6); self.hDict['triggerTimeStamp'].Draw()
     self.canvas.cd(5); self.hDict['triggerID'].Draw()
-    self.canvas.cd(2); self.hDict['lgPhaSum'].Draw()
-    self.canvas.cd(3); self.hDict['hgPhaSum'].Draw()
+    self.canvas.cd(2); self.hDict['lgPha_00'].Draw()
+    self.canvas.cd(3); self.hDict['hgPha_00'].Draw()
     self.canvas.cd(8); self.hDict['uniqueTrigID'].Draw()
     #if self.acqMode == 1:
       #self.canvas.cd(7); self.hDict[''].Draw()
@@ -272,8 +293,8 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
     '''Draw lgPhaSum and hgPhaSum distribution'''
     if self.canNum != 2:
       self.createCanvas(2)
-    self.canvas.cd(1);  self.hDict["lgPhaSum"].Draw()
-    self.canvas.cd(2);  self.hDict["hgPhaSum"].Draw()
+    self.canvas.cd(1);  self.hDict["lgPha_00"].Draw()
+    self.canvas.cd(2);  self.hDict["hgPha_00"].Draw()
     self.canvas.Update()
 
   ##### DrMon method #######
@@ -320,6 +341,13 @@ class DrSiPMMon(DrBaseMon.DrBaseMon):
     for key in self.cmdShCuts:
       print(BLU, key, NOCOLOR)
     print(BLU, "To exit type q", NOCOLOR)
+
+
+  def CheckForHisto(self, name):
+    found = name in self.hDict
+    return found
+
+      
 
     
 

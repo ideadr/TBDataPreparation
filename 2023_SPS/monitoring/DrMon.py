@@ -31,18 +31,12 @@ class DrMon(DrBaseMon.DrBaseMon):
     tmp=re.findall('\d+',fnamePMT)
     if len(tmp) != 0:
       self.runNum = tmp[-1]
-    '''
     self.cmdShCuts  = {        # Mapping between command shortCuts and commands
-      "all"     : self.DrawAll,
-      "board"   : self.DrawBoard,
-      "pha"     : self.DrawPHA,
-      "trigger" : self.DrawTrigger,
       "help"    : self.PrintHelp,
     }
-    '''
 
-    self.drMonSiPM = DrSiPMMon.main(self.fnameSiPM, self.acqMode, self.maxEvts, self.sample)
-    self.drMonPMT  = DrAuxMon.main(self.fnamePMT, self.maxEvts, self.sample, self.trigCut)
+    self.drSiPMMon = DrSiPMMon.main(self.fnameSiPM, self.acqMode, self.maxEvts, self.sample)
+    self.drAuxMon  = DrAuxMon.main(self.fnamePMT, self.maxEvts, self.sample, self.trigCut)
 
   def commander(self):
     '''Interactive commander '''
@@ -61,16 +55,37 @@ class DrMon(DrBaseMon.DrBaseMon):
         opt = pars[1]
 
       if   cmd == "q": print("Bye"); sys.exit(0)
-      elif cmd in self.drMonSiPM.cmdShCuts:  # SHORTCUTS
-        self.drMonSiPM.cmdShCuts[cmd]()
+      elif cmd in self.cmdShCuts:
+        self.cmdShCuts[cmd]()
+      elif cmd in self.drSiPMMon.cmdShCuts:  # SHORTCUTS
+        self.drSiPMMon.cmdShCuts[cmd]()
       #elif cmd.isdigit():          # SHORTCUTS WITH DIGITS
         #hIdx = int(cmd)
         #if hIdx < len(self.cmdShCuts): 
           #self.cmdShCuts[ self.cmdShCutsV[hIdx] ]()
-      elif cmd in self.drMonPMT.cmdShCuts:
-        self.drMonPMT.cmdShCuts[cmd]()
-      #else: 
-        #self.DrawSingleHisto(cmd, opt)
+      elif cmd in self.drAuxMon.cmdShCuts:
+        self.drAuxMon.cmdShCuts[cmd]()
+      else:
+        if self.drSiPMMon.CheckForHisto(cmd):
+          self.DrawSingleHisto(cmd, opt, self.drSiPMMon.hDict)
+        elif self.drAuxMon.CheckForHisto(cmd):
+          self.DrawSingleHisto(cmd, opt, self.drAuxMon.hDict)
+        else:
+          print("Unknown Histogram")
+
+
+    ##### DrMon method #######
+  def PrintHelp(self):
+    '''Help: shows available commands and histograms'''
+    print(BLU, "Available Auxiliary Commands:", NOCOLOR)
+    for cmd in self.drAuxMon.cmdShCuts:
+      print(BLU, cmd, NOCOLOR)
+    print("\n--------------------------------------------------")
+    print(BLU, "Available SiPM Commans:", NOCOLOR)
+    for cmd in self.drSiPMMon.cmdShCuts:
+      print(BLU, cmd, NOCOLOR)
+    print("\n--------------------------------------------------")
+    print(BLU, "To exit type q", NOCOLOR)
 
 
 def Usage():

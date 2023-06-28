@@ -74,6 +74,7 @@ class DrAuxMon(DrBaseMon.DrBaseMon):
        "caloPos"    : self.DrawCaloCenterOfGravity,
        "caloTot"    : self.DrawTotalEnergyInCalo,
        "MuonOverPre": self.DrawMuonOverPre,
+       "auxhelp"    : self.dumpHelp,
     }
     self.cmdShCutsV = list(self.cmdShCuts)
     self.NumOfLinesOfThisFile()
@@ -595,6 +596,10 @@ class DrAuxMon(DrBaseMon.DrBaseMon):
         print('Not an integer')
         return None
     return None
+  
+  def CheckForHisto(self, name):
+    found = name in self.hDict
+    return found
 
   ##### DrMon method #######
   def commander(self):
