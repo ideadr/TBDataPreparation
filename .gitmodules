@@ -1,0 +1,3 @@
+[submodule "DreamDaqMon"]
+	path = DreamDaqMon
+	url = git@github.com:DRCalo/DreamDaqMon.git
