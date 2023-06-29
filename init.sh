@@ -13,12 +13,12 @@ source ${LCGVER}
 # Use cvmfs-venv to hack back against PYTHONPATH pollution
 # c.f. https://github.com/matthewfeickert/cvmfs-venv for more information and examples
 # download and run directly to avoid temporary files or adding a Git submodule
-bash <(curl -sL https://raw.githubusercontent.com/matthewfeickert/cvmfs-venv/v0.0.3/cvmfs-venv.sh) ideadr-env
-source ideadr-env/bin/activate
+#bash <(curl -sL https://raw.githubusercontent.com/matthewfeickert/cvmfs-venv/v0.0.3/cvmfs-venv.sh) ideadr-env
+#source ideadr-env/bin/activate
 
 # FIXME: hack due to unversioned library in LCG
-ln -sf /lib64/libtiff.so "ideadr-env/lib/"
-ln -sf /lib64/libtiff.so.5 "ideadr-env/lib/"
+#ln -sf /lib64/libtiff.so "ideadr-env/lib/"
+#ln -sf /lib64/libtiff.so.5 "ideadr-env/lib/"
 export LD_LIBRARY_PATH="ideadr-env/lib:${LD_LIBRARY_PATH}"
 
 # Generate a Env setup script for every log-in
