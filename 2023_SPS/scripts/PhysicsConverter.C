@@ -28,17 +28,17 @@ void PhysicsConverter(const string run, const string inputPath, const string cal
 
   //Open merged ntuples
   //
-  string infile = inputPath+"merged_sps2021_run"+run+".root"; // Actually we can also merge the merged_sps2021_run into inputPath
-  infile = inputPath+"output"+run+".root";
+  string infile = inputPath+"merged_sps2023_run"+run+".root"; // Actually we can also merge the merged_sps2023_run into inputPath
+  //infile = inputPath+"output"+run+".root";
   std::cout<<"Using file: "<<infile<<std::endl;
   char cinfile[infile.size() + 1];
   strcpy(cinfile, infile.c_str());
-  string outfile = "physics_sps2021_run"+run+".root"; // Make sure this matches the mv file in DoPhysicsConverter.py
+  string outfile = "physics_sps2023_run"+run+".root"; // Make sure this matches the mv file in DoPhysicsConverter.py
   char coutfile[outfile.size() + 1];
   strcpy(coutfile, outfile.c_str());
   auto Mergfile = new TFile(cinfile, "READ");
-  auto *PMTtree = (TTree*) Mergfile->Get("CERNSPS2021");
-  auto *SiPMtree = (TTree*) Mergfile->Get("SiPMSPS2021");
+  auto *PMTtree = (TTree*) Mergfile->Get("CERNSPS2023");
+  auto *SiPMtree = (TTree*) Mergfile->Get("SiPMSPS2023");
   //Create new tree and Event object
   //
   auto Outfile = new TFile(coutfile,"RECREATE");

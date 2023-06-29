@@ -4,15 +4,13 @@ import multiprocessing as mp
 from tqdm import tqdm
 
 
-#rawdataPath = "/afs/cern.ch/user/i/ideadr/cernbox/TB2021_H8/rawData"
-#rawntuplePath = "/afs/cern.ch/user/i/ideadr/cernbox/TB2021_H8/rawNtupleSiPM"
-
 
 def getFiles():
     print(rawdataPath)
     files = glob(rawdataPath + "/*.dat")
     files = list(map(os.path.abspath, files))
-    files = [f for f in files if os.path.getsize(f)/1024/1024 > 3]
+    files = [f for f in files if os.path.getsize(f) > 1000]
+    print(files)
     return files
 
 
@@ -49,8 +47,8 @@ def convertAll(fnames):
 if __name__ == "__main__":
     import argparse                                                                      
     parser = argparse.ArgumentParser(description='This script onverts the binary FERs files from the Janus software to root ntuples.')
-    parser.add_argument('-i', '--inputRawDataPath', dest='rawdataPath', default='/afs/cern.ch/user/i/ideadr/cernbox/TB2023_H8/rawData', help='Input path of raw data')
-    parser.add_argument('-o', '--outputRawNtuplePath', dest='rawntuplePath', default='/afs/cern.ch/user/i/ideadr/cernbox/TB2023_H8/rawNtupleSiPM', help='Output path for the raw ntuples')
+    parser.add_argument('-i', '--inputRawDataPath', dest='rawdataPath', default='/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/rawData', help='Input path of raw data')
+    parser.add_argument('-o', '--outputRawNtuplePath', dest='rawntuplePath', default='/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/rawNtupleSiPM', help='Output path for the raw ntuples')
     
     par  = parser.parse_args()
     global rawdataPath 
