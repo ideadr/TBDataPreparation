@@ -1,3 +1,4 @@
+
 echo "Setting up environment"
 
 # Activate virtual environment after lsetup to avoid PYTHONPATH pollution
@@ -7,8 +8,7 @@ echo "Setting up environment"
 export LD_LIBRARY_PATH=${IDEADIR}/ideadr-env/lib:$LD_LIBRARY_PATH 
 
 export IDEARepo=${IDEADIR}/TBDataPreparation
-export PATH=${IDEARepo}/2023_SPS/scripts:${PATH}
-export PATH=${IDEADIR}/ideadr-env/bin:${PATH}
+export PATH=${IDEARepo}/2023_SPS/scripts:${IDEARepo}/2023_SPS/SIPM/converter:${PATH}
 export PYTHONPATH=${IDEARepo}/2023_SPS/scripts:${IDEARepo}/DreamDaqMon:${PYTHONPATH}
 export BATCHPATH=${PATH}
 
