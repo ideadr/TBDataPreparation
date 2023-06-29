@@ -1,5 +1,13 @@
 # Conversion fron ascii data format to DREvent class
 
+'''
+New DREvent class for 2023 test-beam. The header of the event contains four more words than it used to in 2021. For the moment this version of the DREvent class simply shifts the reading of the header to read off the same contents than the 2021 data
+ 
+TO BE DONE: implement teh readout of teh four new words
+ 
+'''
+
+
 class DREvent:
   ''' Class that represent a Dual Readout event at TB 2021 @H8 '''
   
@@ -50,13 +58,13 @@ def DRdecode(evLine):
   # Parse strHeader
   hList = strHeader.split()
   e.EventNumber = int( hList[2] )
-  e.NumOfPhysEv = int( hList[5] )
-  e.NumOfPedeEv = int( hList[6] )
-  e.NumOfSpilEv = int( hList[7] )
+  e.NumOfPhysEv = int( hList[9] )
+  e.NumOfPedeEv = int( hList[10] )
+  e.NumOfSpilEv = int( hList[11] )
   try:
-    e.TriggerMask = int( hList[10], 16 )
+    e.TriggerMask = int( hList[14], 16 )
   except ValueError:
-    print( 'ERROR: INVALID TRIGGER MASK:', hList[10] )
+    print( 'ERROR: INVALID TRIGGER MASK:', hList[14] )
     e.TriggerMask = 0xFFFFFFFF 
    
   # Parse ADC 

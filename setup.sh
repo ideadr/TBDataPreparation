@@ -1,7 +1,5 @@
 echo "Setting up environment"
 
-source /cvmfs/sft.cern.ch/lcg/views/LCG_98python3/x86_64-centos7-gcc10-opt/setup.sh
-
 # Activate virtual environment after lsetup to avoid PYTHONPATH pollution
 . "${IDEADIR}"/ideadr-env/bin/activate 
 
