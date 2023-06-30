@@ -5,7 +5,7 @@ echo "Setting up environment"
 #. "${IDEADIR}"/ideadr-env/bin/activate 
 
 # c.f. libtiff.so hack in init.sh
-export LD_LIBRARY_PATH=${IDEADIR}/ideadr-env/lib:$LD_LIBRARY_PATH 
+#export LD_LIBRARY_PATH=${IDEADIR}/ideadr-env/lib:$LD_LIBRARY_PATH 
 
 export IDEARepo=${IDEADIR}/TBDataPreparation
 export PATH=${IDEARepo}/2023_SPS/scripts:${IDEARepo}/2023_SPS/SIPM/converter:${PATH}
