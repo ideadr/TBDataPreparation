@@ -58,11 +58,11 @@ class DRrootify:
             self.TriggerMask[0] = evt.TriggerMask
 	    #if evt.TriggerMask > 10:
 	    #	print evt.TriggerMask
-            for counter, l in enumerate(evt.ADCs.items()):
-                self.ADCs[counter] = l[1]
-            for counter, l in enumerate(evt.TDCs.items()):
-                self.TDCsval[counter] = l[1][0]
-                self.TDCscheck[counter] = l[1][1]
+            for ch,val in evt.ADCs.items() :
+                self.ADCs[ch] = val
+            for ch,vals in evt.TDCs.items():
+                self.TDCsval[ch] = vals[0]
+                self.TDCscheck[ch] = vals[1]
             self.tbtree.Fill()
         print( "--->End rootification of " + self.drfname )
     
