@@ -83,7 +83,7 @@ def main():
                         default='/eos/user/i/ideadr/TB2023_H8/rawNtuple',
                         help='output root files will be stored in this directory')
     parser.add_argument('-i','--input_dir', action='store', dest='datapath',
-                        default='/eos/user/i/ideadr/TB2023_H8/rawData',
+                        default='/eos/user/i/ideadr/TB2023_H8/rawDataDreamDaq',
                         help='output root files will be stored in this directory')
     par = parser.parse_args()
 
