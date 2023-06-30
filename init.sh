@@ -6,7 +6,8 @@ then
     exit 1
 fi
 
-LCGVER=/cvmfs/sft.cern.ch/lcg/views/LCG_102b/x86_64-centos7-gcc11-opt/setup.sh
+LCGVER=/cvmfs/sw.hsf.org/key4hep/setup.sh
+#LCGVER=/cvmfs/sft.cern.ch/lcg/views/LCG_102b/x86_64-centos7-gcc11-opt/setup.sh
 
 source ${LCGVER}
 
