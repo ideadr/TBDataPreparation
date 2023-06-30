@@ -7,13 +7,13 @@ import numpy as np
 import glob,time
 
 ####### Hard coded information - change as you want
-SiPMFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2021_H8/rawNtupleSiPM"
-DaqFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2021_H8/rawNtuple"
-MergedFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2021_H8/mergedNtuple"
+SiPMFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/rawNtupleSiPM"
+DaqFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/rawNtuple"
+MergedFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/mergedNtuple"
 SiPMTreeName = "SiPMData"
 SiPMMetaDataTreeName = "EventInfo"
-DaqTreeName = "CERNSPS2021"
-SiPMNewTreeName = "SiPMSPS2021"
+DaqTreeName = "CERNSPS2023"
+SiPMNewTreeName = "SiPMSPS2023"
 EvtOffset = -1000
 doNotMerge = False
 
@@ -52,7 +52,7 @@ def CreateBlendedFile(SiPMFileName,DaqFileName,outputfilename):
         print( "Cannot find tree with name " + SiPMMetaDataTreeName + " in file " + SiPMinfile.GetName())
         return -1
     if not (DaqTreeName in Daqinfile.GetListOfKeys()):
-        print( "Cannot find tree with name " + DaqTreeName + " in file " + DaqInfile.GetName())
+        print( "Cannot find tree with name " + DaqTreeName + " in file " + Daqinfile.GetName())
         return -1
     
     DaqInputTree = Daqinfile.Get(DaqTreeName)
@@ -80,7 +80,7 @@ def CreateBlendedFile(SiPMFileName,DaqFileName,outputfilename):
     OutputFile.cd()
     newSiPMTree = ROOT.TTree(SiPMNewTreeName,"SiPM info")
         
-    CloneSiPMTree(DaqInputTree,SiPMInputTree,OutputFile)
+    CloneSiPMTree(SiPMInputTree,OutputFile,DaqInputTree)
                   
     newSiPMTree.Write()
     OutputFile.Close()    
@@ -88,15 +88,15 @@ def CreateBlendedFile(SiPMFileName,DaqFileName,outputfilename):
 
 # main function to reorder and merge the SiPM file
 
-def CloneSiPMTree(DaqInputTree,SiPMInput,OutputFile):
-    """ Create a new tree named SiPMNewTreeName("SiPMSPS2021") record board info after considering the offset.
+def CloneSiPMTree(SiPMInput,OutputFile,DaqInputTree = None):
+    """ Create a new tree named SiPMNewTreeName("SiPMSPS2023") record board info after considering the offset.
         The logic is the following: 
         - start with a loop on the Daq tree. 
         - For each event find out which entries of the SiPMInput need to be looked at (those with corresponding TriggerId) with the offset. 
         - Once this information is available, copy the information of the boards and save the tree
 
     Args:
-        DaqInputTree (TTree): DaqTreeName("CERNSPS2021") Tree in H1-H8 root file
+        DaqInputTree (TTree): DaqTreeName("CERNSPS2023") Tree in H1-H8 root file
         SiPMInput (TTree): SiPMTreeName("SiPMData") Tree in H0 root file
         OutputFile (TFile): Output Root file.
     """
@@ -135,8 +135,14 @@ def CloneSiPMTree(DaqInputTree,SiPMInput,OutputFile):
             entryDict[evt.TriggerId].append(ievt)
         else:
             entryDict[evt.TriggerId] = [ievt]
+
+    print(entryDict)
             
-    totalNumberOfEvents = DaqInputTree.GetEntries()
+    totalNumberOfEvents = None 
+    if DaqInputTree != None: 
+        totalNumberOfEvents = DaqInputTree.GetEntries()
+    else:
+        totalNumberOfEvents = len(entryDict)
 
     print( "Total Number of Events from DAQ " + str(totalNumberOfEvents))
     print( "Merging with an offset of " + str(EvtOffset))
@@ -182,7 +188,7 @@ def DetermineOffset(SiPMTree,DAQTree):
 
     Args:
         SiPMTree (TTree): SiPMTreeName("SiPMData") Tree in H0 root file
-        DAQTree (TTree): DaqTreeName("CERNSPS2021") Tree in H1-H8 root file
+        DAQTree (TTree): DaqTreeName("CERNSPS2023") Tree in H1-H8 root file
 
     Returns:
         int: the Offset applied on H1-H8 matches H1-H8 to H0.
@@ -279,7 +285,7 @@ def CheckFileNames(SiPMFileName,DaqFileName):
 
 
 def doRun(runnumber,outfilename):
-    inputDaqFileName = DaqFileDir + "/sps2021data.run" + str(runnumber) + ".root"
+    inputDaqFileName = DaqFileDir + "/sps2023data.run" + str(runnumber) + ".root"
     inputSiPMFileName = SiPMFileDir + "/Run" + str(runnumber) + "_list.root"
     return CreateBlendedFile(inputSiPMFileName,inputDaqFileName,outfilename)
 
@@ -312,9 +318,8 @@ def GetNewRuns():
     cand_tomerge = set()
 
     for runnum in sim_run_list:
-        if (int(runnum) >= 644):
-            if runnum in daq_run_list:
-                cand_tomerge.add(runnum)
+        if runnum in daq_run_list:
+            cand_tomerge.add(runnum)
     tobemerged = cand_tomerge - already_merged
     return sorted(tobemerged)
 
@@ -334,7 +339,7 @@ def main():
     parser.add_argument('--inputDaq', dest='inputDaq',default='0',help='Input Daq file')
     parser.add_argument('--output', dest='outputFileName',default='SiPM_PMT_output.root',help='Output file name')
     parser.add_argument('--no_merge', dest='no_merge',action='store_true',help='Do not do the merging step')           
-    parser.add_argument('--runNumber',dest='runNumber',default='0', help='Specify run number. The output file name will be merged_sps2021_run[runNumber].root ')
+    parser.add_argument('--runNumber',dest='runNumber',default='0', help='Specify run number. The output file name will be merged_sps2023_run[runNumber].root ')
     parser.add_argument('--newFiles',dest='newFiles',action='store_true', default=False, help='Looks for new runs in ' + SiPMFileDir + ' and ' + DaqFileDir + ', and merges them. To be used ONLY from the ideadr account on lxplus')
 
     
@@ -346,7 +351,7 @@ def main():
         ##### build runnumber list
         rn_list = GetNewRuns()
         for runNumber in rn_list:
-            outfilename = MergedFileDir + '/merged_sps2021_run' + str(runNumber) + '.root'
+            outfilename = MergedFileDir + '/merged_sps2023_run' + str(runNumber) + '.root'
             print( '\n\nGoing to merge run ' + runNumber + ' and the output file will be ' + outfilename + '\n\n'  )
             allgood = doRun(runNumber, outfilename)
         return 
@@ -355,7 +360,7 @@ def main():
 
     if par.runNumber != '0':
         print( 'Looking for run number ' + par.runNumber)
-        outfilename = 'merged_sps2021_run' + str(par.runNumber) + '.root'
+        outfilename = 'merged_sps2023_run' + str(par.runNumber) + '.root'
         allGood = doRun(par.runNumber,outfilename)
     else: 
         if par.inputSiPM != '0' and par.inputDaq != '0':

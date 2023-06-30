@@ -1,6 +1,6 @@
 CXX:=g++
-CXXFLAGS:=$(shell root-config --cflags) $(shell root-config --libs) -O3 -march=native -std=c++17
-INCLUDE:=readerfast.h hardcodedfast.h
+CXXFLAGS:=$(shell root-config --cflags) $(shell root-config --libs) -O3 -mavx2 -std=c++17
+INCLUDE:=converter.h hardcoded.h
 
-readerfast: readerfast.cpp
-	$(CXX) readerfast.cpp $(CXXFLAGS) -o dataconverter
+readerfast: converter.cpp
+	$(CXX) converter.cpp $(CXXFLAGS) -o dataconverter

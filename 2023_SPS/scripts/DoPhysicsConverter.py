@@ -3,6 +3,7 @@
 import glob
 import os
 import argparse
+import re
 
 
 def returnRunNumber(x: str) -> str:
@@ -14,7 +15,10 @@ def returnRunNumber(x: str) -> str:
     Returns:
         str: return runNumber
     """
-    return x[len(x)-8:len(x)-5]
+
+    m = re.search(r".*run([0-9]+)\.root*",x)
+
+    return m.group(1)
 
 
 def main():
@@ -30,13 +34,13 @@ def main():
                         default=False,
                         help='Print more information')
     parser.add_argument('-o','--output_dir', action='store', dest='ntuplepath',
-                        default='/eos/user/i/ideadr/TB2021_H8/recoNtuple/',
+                        default='/eos/user/i/ideadr/TB2023_H8/recoNtuple/',
                         help='output root file path')
     parser.add_argument('-i','--input_dir', action='store', dest='datapath',
-                        default='/eos/user/i/ideadr/TB2021_H8/CERNDATA/v1.3/mergedNtuple/',
+                        default='/eos/user/i/ideadr/TB2023_H8/mergedNtuple/',
                         help='input root file path')
     parser.add_argument('-c','--calibra_file', action='store', dest='calibrationfile',
-                        default='/afs/cern.ch/work/c/caiy/public/FCC/TBDataPreparation/2023_SPS/scripts/RunXXX_modified_v1.3.5.json',
+                        default='/afs/cern.ch/user/i/ideadr/devel/TBDataPreparation/2023_SPS/scripts/RunXXX_modified_v1.3.5.json',
                         help='calibration file')
     par = parser.parse_args()
     
@@ -48,10 +52,14 @@ def main():
         print( 'ERROR! Output directory ' + par.ntuplepath + ' does not exist.' )
         return -1
 
+    #One needs to make assumptions here on the format of the filename. Not the best.....
+
     mrgpath = par.datapath
     mrgfls = [ returnRunNumber(x) for x in glob.glob(mrgpath+"*.root")]
     recpath = par.ntuplepath
     recfls = [ returnRunNumber(x) for x in glob.glob(recpath+"*.root")]
+    print(mrgfls)
+    print(recfls)
     mrgfls = list(set(mrgfls) - set(recfls))
     
     phspath = par.ntuplepath
@@ -63,11 +71,12 @@ def main():
 
 
     calFile=par.calibrationfile
-    marcoPath = os.getenv('IDEARepo') + "/2023_SPS/scripts/"
+    macroPath = os.getenv('IDEARepo') + "/2023_SPS/scripts/"
+    print(macroPath)
     for fl in mrgfls:
-        cmnd1 = "root -l -b -q .x '"+marcoPath+"PhysicsConverter.C(\""+fl+"\", \""+par.datapath+"\", \""+calFile+"\" )'"
+        cmnd1 = "root -l -b -q -x '"+macroPath+"PhysicsConverter.C(\""+fl+"\", \""+par.datapath+"\", \""+calFile+"\" )'"
         os.system(cmnd1)
-        cmnd2 = "mv physics_sps2021_run"+fl+".root "+phspath  ### Really careful here!
+        cmnd2 = "mv physics_sps2023_run"+fl+".root "+phspath  ### Really careful here!
         os.system(cmnd2)
 
     if not mrgfls:

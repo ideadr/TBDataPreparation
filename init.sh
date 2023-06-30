@@ -6,17 +6,20 @@ then
     exit 1
 fi
 
-source /cvmfs/sft.cern.ch/lcg/views/LCG_102b/x86_64-centos7-gcc11-opt/setup.sh
+LCGVER=/cvmfs/sw.hsf.org/key4hep/setup.sh
+#LCGVER=/cvmfs/sft.cern.ch/lcg/views/LCG_102b/x86_64-centos7-gcc11-opt/setup.sh
+
+source ${LCGVER}
 
 # Use cvmfs-venv to hack back against PYTHONPATH pollution
 # c.f. https://github.com/matthewfeickert/cvmfs-venv for more information and examples
 # download and run directly to avoid temporary files or adding a Git submodule
-bash <(curl -sL https://raw.githubusercontent.com/matthewfeickert/cvmfs-venv/v0.0.3/cvmfs-venv.sh) ideadr-env
-source ideadr-env/bin/activate
+#bash <(curl -sL https://raw.githubusercontent.com/matthewfeickert/cvmfs-venv/v0.0.3/cvmfs-venv.sh) ideadr-env
+#source ideadr-env/bin/activate
 
 # FIXME: hack due to unversioned library in LCG
-ln -sf /lib64/libtiff.so "ideadr-env/lib/"
-ln -sf /lib64/libtiff.so.5 "ideadr-env/lib/"
+#ln -sf /lib64/libtiff.so "ideadr-env/lib/"
+#ln -sf /lib64/libtiff.so.5 "ideadr-env/lib/"
 export LD_LIBRARY_PATH="ideadr-env/lib:${LD_LIBRARY_PATH}"
 
 # Generate a Env setup script for every log-in
@@ -27,7 +30,12 @@ then
     mv setup.sh setup.sh.old
 fi
 cat <<EOF > setup.sh
+#source LCG
+
+source ${LCGVER}
+
 #set working directory
+
 export IDEADIR=$PWD
 export SamplePath=$PWD
 

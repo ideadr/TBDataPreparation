@@ -7,6 +7,8 @@
 ## \author: Lorenzo Pezzotti (CERN EP-SFT-sim) @lopezzot
 ##          Andrea Negri (UniPV & INFN)
 ## \start date: 16 August 2021
+##
+## Updated for TB2023 by Yuchen Cai and Iacopo Vivarelli 
 ##**************************************************
 
 
@@ -24,7 +26,7 @@ class DRrootify:
         '''Class Constructor'''
         self.drfname = fname+".txt"
         self.drfile = TFile(fname+".root","RECREATE")
-        self.tbtree = TTree("CERNSPS2021","CERNSPS2021")
+        self.tbtree = TTree("CERNSPS2023","CERNSPS2023")
         self.EventNumber = array('i',[0])
         self.NumOfPhysEv = array('i',[0])
         self.NumOfPedeEv = array('i',[0])
@@ -78,10 +80,10 @@ def main():
                         default=False,
                         help='Print more information')
     parser.add_argument('-o','--output_dir', action='store', dest='ntuplepath',
-                        default='/eos/user/i/ideadr/TB2021_H8/rawNtuple',
+                        default='/eos/user/i/ideadr/TB2023_H8/rawNtuple',
                         help='output root files will be stored in this directory')
     parser.add_argument('-i','--input_dir', action='store', dest='datapath',
-                        default='/eos/user/i/ideadr/TB2021_H8/rawData',
+                        default='/eos/user/i/ideadr/TB2023_H8/rawDataDreamDaq',
                         help='output root files will be stored in this directory')
     par = parser.parse_args()
 
