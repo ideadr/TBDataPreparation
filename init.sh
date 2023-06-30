@@ -6,7 +6,7 @@ then
     exit 1
 fi
 
-source /cvmfs/sft.cern.ch/lcg/views/LCG_98python3/x86_64-centos7-gcc10-opt/setup.sh
+source /cvmfs/sft.cern.ch/lcg/views/LCG_102b/x86_64-centos7-gcc11-opt/setup.sh
 
 # Use cvmfs-venv to hack back against PYTHONPATH pollution
 # c.f. https://github.com/matthewfeickert/cvmfs-venv for more information and examples
