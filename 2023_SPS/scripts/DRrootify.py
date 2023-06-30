@@ -126,7 +126,7 @@ def main():
         print ('\n This is the list of data files that will be converted \n')
         for x in newfls:
             print( x)
-
+        quit()
 
     #Rootify those data
     
