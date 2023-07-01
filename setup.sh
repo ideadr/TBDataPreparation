@@ -9,6 +9,6 @@ echo "Setting up environment"
 export IDEARepo=${IDEADIR}/TBDataPreparation
 export PATH=${IDEARepo}/2023_SPS/scripts:${PATH}
 export PATH=${IDEADIR}/ideadr-env/bin:${PATH}
-export PYTHONPATH=${IDEARepo}/2023_SPS/scripts:${IDEARepo}/DreamDaqMon:${PYTHONPATH}
+export PYTHONPATH=${IDEARepo}/2023_SPS/SIPM/scripts:${IDEARepo}/2023_SPS/scripts:${IDEARepo}/DreamDaqMon:${PYTHONPATH}
 export BATCHPATH=${PATH}
 
