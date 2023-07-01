@@ -28,6 +28,12 @@ class DRrootify:
         self.drfile = TFile(fname+".root","RECREATE")
         self.tbtree = TTree("CERNSPS2023","CERNSPS2023")
         self.EventNumber = array('i',[0])
+        self.EventSpill = array('i',[0])
+        self.Eventms = array('i',[0])
+        self.Eventsec = array('i',[0])
+        self.Eventmin = array('i',[0])
+        self.Eventhour = array('i',[0])
+        self.Eventday = array('i',[0])
         self.NumOfPhysEv = array('i',[0])
         self.NumOfPedeEv = array('i',[0])
         self.NumOfSpilEv = array('i',[0])
@@ -37,6 +43,12 @@ class DRrootify:
         self.TDCscheck = array('i',[-1]*48)
 
         self.tbtree.Branch("EventNumber",self.EventNumber,'EventNumber/I')
+        self.tbtree.Branch("EventSpill",self.EventSpill,'EventSpill/I')
+        self.tbtree.Branch("Eventms",self.Eventms,'Eventms/I')
+        self.tbtree.Branch("Eventsec",self.Eventsec,'Eventsec/I')
+        self.tbtree.Branch("Eventmin",self.Eventmin,'Eventmin/I')
+        self.tbtree.Branch("Eventhour",self.Eventhour,'Eventhour/I')
+        self.tbtree.Branch("Eventday",self.Eventday,'Eventday/I')
         self.tbtree.Branch("NumOfPhysEv",self.NumOfPhysEv,'NumOfPhysEv/I')
         self.tbtree.Branch("NumOfPedeEv",self.NumOfPedeEv,'NumOfPedeEv/I')
         self.tbtree.Branch("NumOfSpilEv",self.NumOfSpilEv,'NumOfSpilEv/I')
@@ -52,6 +64,12 @@ class DRrootify:
             if i%5000 == 0 : print( "------>At line "+str(i)+" of "+str(self.drfname) )
             evt = DREvent.DRdecode(line) 
             self.EventNumber[0] = evt.EventNumber
+            self.EventSpill[0] = evt.SpillNumber
+            self.Eventms[0] = int( (evt.EventTime.split("-"))[4] ) #take evt microseconds
+            self.Eventsec[0] = int( (evt.EventTime.split("-"))[3] ) #take evt seconds
+            self.Eventmin[0] = int( (evt.EventTime.split("-"))[2] ) #take evt minutes
+            self.Eventhour[0] = int( (evt.EventTime.split("-"))[1] ) #take evt hours
+            self.Eventday[0] = int( (evt.EventTime.split("-"))[0] ) #take evt day
             self.NumOfPhysEv[0] = evt.NumOfPhysEv
             self.NumOfPedeEv[0] = evt.NumOfPedeEv
             self.NumOfSpilEv[0] = evt.NumOfSpilEv
