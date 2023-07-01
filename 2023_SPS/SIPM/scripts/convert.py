@@ -19,9 +19,9 @@ def moveConverted(fnames):
     for f in toMove:
         newfname = rawntuplePath +"/"+ os.path.basename(f)
         os.rename(f,newfname)
-    for f in fnames:
-        p = subprocess.Popen(["bzip2", "-z", f])
-        p.wait()
+    #for f in fnames:
+    #    p = subprocess.Popen(["bzip2", "-z", f])
+    #    p.wait()
 
 
 def runConversion(fname):
