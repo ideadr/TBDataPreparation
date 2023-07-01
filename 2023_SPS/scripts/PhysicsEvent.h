@@ -91,7 +91,7 @@ class EventOut{
 	    float SPMTenergy = 0.;
 	    float CPMTenergy = 0.;
 	    float XDWC1,XDWC2,YDWC1,YDWC2;
-	    int PShower, MCounter, C1, C2;
+	    int PShower, MCounter, C1, C2, C3;
 
         void CompSPMTene(){SPMTenergy = SPMT1+SPMT2+SPMT3+SPMT4+SPMT5+SPMT6+SPMT7+SPMT8;}
         void CompCPMTene(){CPMTenergy = CPMT1+CPMT2+CPMT3+CPMT4+CPMT5+CPMT6+CPMT7+CPMT8;}

@@ -6,14 +6,19 @@ from array import array
 import numpy as np
 import glob,time
 
+import DRrootify
+import bz2
+
 import subprocess
 
 ####### Hard coded information - change as you want
-SiPMFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/rawData"
-DaqFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/rawDataDreamDaq"
-MergedFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/mergedNtuple"
+#SiPMFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/rawData"
+#DaqFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/rawDataDreamDaq"
+#MergedFileDir="/afs/cern.ch/user/i/ideadr/scratch/TB2023_H8/mergedNtuple"
 
-
+SiPMFileDir="/afs/cern.ch/user/i/ideadr/devel/test_data/rawData"
+DaqFileDir="/afs/cern.ch/user/i/ideadr/devel/test_data/rawDataDreamDaq"
+MergedFileDir="/afs/cern.ch/user/i/ideadr/devel/test_data/mergedNtuple"
 
 SiPMTreeName = "SiPMData"
 SiPMMetaDataTreeName = "EventInfo"
@@ -291,7 +296,7 @@ def CheckFileNames(SiPMFileName,DaqFileName):
 
 def doRun(runnumber,outfilename):
     print(os.environ['PATH'])
-    inputDaqFileName = DaqFileDir + "/sps2023data.run" + str(runnumber) + ".root"
+    inputDaqFileName = DaqFileDir + "/sps2023data.run" + str(runnumber) + ".txt.bz2"
     inputSiPMFileName = SiPMFileDir + "/Run" + str(runnumber) + "_list.dat"
     tmpSiPMRootFile = SiPMFileDir + "/Run" + str(runnumber) + "_list.root"
     print ('Running dataconverter on ' + inputSiPMFileName)
@@ -301,6 +306,33 @@ def doRun(runnumber,outfilename):
     else:
         print('ERROR! File ' + inputSiPMFileName + ' not found')
         return False
+
+    t_SiPMRootFile = None
+    try:
+        t_SiPMRootFile = ROOT.TFile(tmpSiPMRootFile)
+    except:
+        print('ERROR! File ' + tmpSiPMRootFile + ' not created')
+        return False
+
+    SiPMTree = t_SiPMRootFile.Get(SiPMNewTreeName)
+
+    f = None 
+    try: 
+        f = bz2.open(inputDaqFileName)
+    except: 
+        print ('ERROR! File ' + inputDaqFileName + ' not found')
+        return False
+
+    for line in f.readlines():
+        print(line)
+
+#    DreamDaq_rootifier = DRrootify()
+#    DaqFileDir
+    
+    
+
+    
+
 #    return CreateBlendedFile(inputSiPMFileName,inputDaqFileName,outfilename)
 
 def GetNewRuns():

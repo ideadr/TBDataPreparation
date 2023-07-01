@@ -40,7 +40,7 @@ def main():
                         default='/eos/user/i/ideadr/TB2023_H8/mergedNtuple/',
                         help='input root file path')
     parser.add_argument('-c','--calibra_file', action='store', dest='calibrationfile',
-                        default='/afs/cern.ch/user/i/ideadr/devel/TBDataPreparation/2023_SPS/scripts/RunXXX_modified_v1.3.5.json',
+                        default='/afs/cern.ch/user/i/ideadr/devel/TBDataPreparation/2023_SPS/scripts/RunXXX_modified.json',
                         help='calibration file')
     par = parser.parse_args()
     
