@@ -22,10 +22,10 @@ import os
 class DRrootify:
     '''Class to rootify raw ASCII files'''
 
-    def __init__(self, fname):
+    def __init__(self):
         '''Class Constructor'''
-        self.drfname = fname+".txt"
-        self.drfile = TFile(fname+".root","RECREATE")
+        self.drf = None
+        self.drfile = TFile(".root","RECREATE")
         self.tbtree = TTree("CERNSPS2023","CERNSPS2023")
         self.EventNumber = array('i',[0])
         self.NumOfPhysEv = array('i',[0])
@@ -46,10 +46,13 @@ class DRrootify:
         self.tbtree.Branch("TDCscheck",self.TDCscheck,'TDCscheck[48]/I')
 
     def ReadandRoot(self):
-        '''Read ASCII files line by line and rootify'''
-        print( "--->Start rootification of " + self.drfname )
-        for i, line in enumerate(open(self.drfname)):
-            if i%5000 == 0 : print( "------>At line "+str(i)+" of "+str(self.drfname) )
+        if self.drf == None:
+            print('Input file not opened')
+            return False
+
+        for i,line in enumerate(self.drf):
+
+            if i%5000 == 0 : print( "------>At line "+str(i))
             evt = DREvent.DRdecode(line) 
             self.EventNumber[0] = evt.EventNumber
             self.NumOfPhysEv[0] = evt.NumOfPhysEv
@@ -64,11 +67,15 @@ class DRrootify:
                 self.TDCsval[ch] = vals[0]
                 self.TDCscheck[ch] = vals[1]
             self.tbtree.Fill()
-        print( "--->End rootification of " + self.drfname )
+        print( "--->End rootification ")
+        return True
     
     def Write(self):
         self.tbtree.Write()
         self.drfile.Close()
+
+    def Open(self,fname):
+        self.drf = open(fname,'r')
 
 
 def main():
@@ -139,8 +146,10 @@ def main():
         os.system("bzip2 -d -k "+datapath+ '/' + str(fl)+".bz2")
         print( "--->"+str(fl)+".bz2 decompressed")
         fname = fl[0:-4] # remove .txt in the name
-        dr = DRrootify(datapath+'/' +fname)
-        dr.ReadandRoot()
+        dr = DRrootify()
+        dr.Open(datapath+'/' +fname)
+        if not dr.ReadandRoot():
+            print ("Problems in rootifying " + datapath + '/' + fname) 
         dr.Write()
         os.system("rm "+datapath+'/' + fl) # remove decompressed txt files
         os.system("mv "+datapath+ '/' + str(fl[0:-4])+".root "+ntuplepath + '/') # move output ntuple to output dir
