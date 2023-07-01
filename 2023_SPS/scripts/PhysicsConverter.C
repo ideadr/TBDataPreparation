@@ -103,8 +103,9 @@ void PhysicsConverter(const string run, const string inputPath, const string cal
     ev->CPMT8 = ADCs[7];
     evout->PShower = ADCs[16];
     evout->MCounter = ADCs[32];
-    evout->C1 = ADCs[64];
-    evout->C2 = ADCs[65];
+    evout->C1 = ADCs[33];
+    evout->C2 = ADCs[36];
+    evout->C3 = ADCs[35];
     //
     ev->DWC1L=TDCsval[0];
     ev->DWC1R=TDCsval[1];

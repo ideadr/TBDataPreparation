@@ -32,7 +32,7 @@ class DRrootify:
         self.NumOfPedeEv = array('i',[0])
         self.NumOfSpilEv = array('i',[0])
         self.TriggerMask = array('l',[0])
-        self.ADCs = array('i',[-1]*96)
+        self.ADCs = array('i',[-1]*64)
         self.TDCsval = array('i',[-1]*48)
         self.TDCscheck = array('i',[-1]*48)
 
@@ -41,7 +41,7 @@ class DRrootify:
         self.tbtree.Branch("NumOfPedeEv",self.NumOfPedeEv,'NumOfPedeEv/I')
         self.tbtree.Branch("NumOfSpilEv",self.NumOfSpilEv,'NumOfSpilEv/I')
         self.tbtree.Branch("TriggerMask",self.TriggerMask,'TriggerMask/L')
-        self.tbtree.Branch("ADCs",self.ADCs,'ADCs[96]/I')
+        self.tbtree.Branch("ADCs",self.ADCs,'ADCs[64]/I')
         self.tbtree.Branch("TDCsval",self.TDCsval,'TDCsval[48]/I')
         self.tbtree.Branch("TDCscheck",self.TDCscheck,'TDCscheck[48]/I')
 
@@ -126,7 +126,7 @@ def main():
         print ('\n This is the list of data files that will be converted \n')
         for x in newfls:
             print( x)
-
+        quit()
 
     #Rootify those data
     
